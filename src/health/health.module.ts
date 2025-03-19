@@ -7,6 +7,9 @@ import {
 import {
   HealthController,
 } from "./health.controller";
+import {
+  HealthRedisIndicator,
+} from "./health.redis-indicator";
 
 @Module({
   imports: [
@@ -15,5 +18,8 @@ import {
   controllers: [
     HealthController,
   ],
+  providers: [
+    HealthRedisIndicator,
+  ]
 })
 export class HealthModule { }

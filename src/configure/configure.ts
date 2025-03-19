@@ -11,6 +11,10 @@ const env = () => ({
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  },
 });
 
 export const Configure = ConfigModule.forRoot({
