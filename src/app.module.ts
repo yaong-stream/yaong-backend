@@ -3,6 +3,7 @@ import {
 } from '@nestjs/common';
 import {
   Configure,
+  Redis,
 } from './configure';
 import {
   RegisteredModules,
@@ -16,6 +17,7 @@ import {
   imports: [
     Configure,
     PostgresDataSource,
+    Redis,
     Routes,
     ...RegisteredModules,
   ],
