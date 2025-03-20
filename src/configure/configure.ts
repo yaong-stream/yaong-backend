@@ -15,6 +15,13 @@ const env = () => ({
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
   },
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '465', 10),
+    secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === 'enable',
+    username: process.env.SMTP_USERNAME,
+    password: process.env.SMTP_PASSWORD,
+  },
 });
 
 export const Configure = ConfigModule.forRoot({
