@@ -4,14 +4,8 @@ import {
 import {
   MailerService,
 } from "./mailer.service";
-import {
-  ConfigModule,
-} from "@nestjs/config";
 
 @Module({
-  imports: [
-    ConfigModule,
-  ],
   providers: [
     MailerService,
   ],

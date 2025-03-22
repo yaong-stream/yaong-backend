@@ -4,6 +4,12 @@ import {
 import {
   HealthModule,
 } from "./health/health.module";
+import {
+  AuthModule,
+} from "./auth/auth.module";
+import {
+  MemberModule,
+} from "./member/member.module";
 
 export const Routes = RouterModule.register([
   {
@@ -16,6 +22,14 @@ export const Routes = RouterModule.register([
             path: "health",
             module: HealthModule,
           },
+          {
+            path: "auth",
+            module: AuthModule,
+          },
+          {
+            path: "member",
+            module: MemberModule,
+          },
         ],
       },
     ],
@@ -24,4 +38,6 @@ export const Routes = RouterModule.register([
 
 export const RegisteredModules = [
   HealthModule,
+  AuthModule,
+  MemberModule,
 ];

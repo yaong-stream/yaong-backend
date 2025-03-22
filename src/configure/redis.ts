@@ -17,7 +17,8 @@ export const Redis = RedisModule.forRootAsync({
     const host = configService.getOrThrow<string>('redis.host');
     const port = configService.getOrThrow<number>('redis.port');
     return {
-      url: `redis://${host}:${port}`,
+      host,
+      port,
     };
   },
 });
