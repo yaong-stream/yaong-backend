@@ -2,10 +2,14 @@ import {
   Column,
   Entity,
   Index,
+  OneToOne,
 } from 'typeorm';
 import {
   DefaultEntity,
 } from './default-entity';
+import {
+  MemberCredential,
+} from './member-credential';
 
 @Entity({
   name: 'members',
@@ -34,7 +38,11 @@ export class Member extends DefaultEntity {
     type: 'varchar',
     name: 'nickname',
     nullable: false,
+    unique: true,
     length: 32,
   })
   nickname: string;
+
+  @OneToOne(() => MemberCredential, (credential) => credential.member)
+  credential: MemberCredential;
 }

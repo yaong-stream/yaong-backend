@@ -5,6 +5,8 @@ import {
 const env = () => ({
   port: parseInt(process.env.PORT || '4000', 10),
   isProduction: process.env.NODE_ENV === 'production',
+  authSecret: process.env.AUTH_SECRET,
+  domain: process.env.DOMAIN || 'http://localhost:4000',
   database: {
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT || '5432', 10),
@@ -22,9 +24,14 @@ const env = () => ({
     username: process.env.SMTP_USERNAME,
     password: process.env.SMTP_PASSWORD,
   },
+  jwt: {
+    accessSecret: process.env.JWT_ACCESS_SECRET,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
+  },
 });
 
 export const Configure = ConfigModule.forRoot({
+  isGlobal: true,
   load: [
     env,
   ],

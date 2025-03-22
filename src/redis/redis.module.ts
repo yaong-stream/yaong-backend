@@ -1,24 +1,22 @@
+import Redis, {
+  RedisOptions,
+} from "ioredis";
 import {
   DynamicModule,
   Module,
 } from "@nestjs/common";
-import {
-  createClient,
-  RedisClientOptions,
-} from "redis";
 import {
   RedisService,
 } from "./redis.service";
 import {
   REDIS_CLIENT,
   REDIS_MODULE,
-  RedisClient,
-} from "./redis.interface";
+} from "./redis.constants";
 
 export type RedisModuleAsyncOptions = {
   imports?: any[],
   inject?: any[],
-  useFactory: (...args: any[]) => Promise<RedisClientOptions> | RedisClientOptions,
+  useFactory: (...args: any[]) => Promise<RedisOptions> | RedisOptions,
 };
 
 @Module({
@@ -47,12 +45,8 @@ export class RedisModule {
             REDIS_MODULE,
           ],
           provide: REDIS_CLIENT,
-          useFactory: async (redisOptions: RedisClientOptions) => {
-            const client: RedisClient = await createClient(redisOptions)
-              .on('error', (err) => {
-                throw err;
-              })
-              .connect();
+          useFactory: async (redisOptions: RedisOptions) => {
+            const client = new Redis(redisOptions);
             return client;
           },
         },
