@@ -56,4 +56,8 @@ export class MemberService {
       .addSelect('credential.password')
       .getOne();
   }
+
+  getMemberById(id: number) {
+    return this.memberRepository.findOneBy({ id });
+  }
 }

@@ -5,45 +5,48 @@ import {
 export class TokenDto {
 
   @ApiProperty({
-    description: 'accesstoken',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMj...',
-    required: true,
+    description: '액세스 토큰',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     type: String,
-    format: 'jwt',
+    required: true,
   })
   accessToken: string;
 
   @ApiProperty({
-    description: 'accesstoken 만료 시간',
-    example: '2025-03-21T00:00:00.000Z',
+    description: '액세스 토큰 만료 시간',
+    example: '2024-03-20T12:00:00Z',
+    type: String,
     required: true,
-    type: Date,
   })
   accessTokenExpireDate: Date;
 
   @ApiProperty({
-    description: 'accesstoken',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxM...',
-    required: true,
+    description: '리프레시 토큰',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     type: String,
-    format: 'jwt',
+    required: true,
   })
   refreshToken: string;
 
   @ApiProperty({
-    description: 'refreshtoken 만료 시간',
-    example: '2025-03-21T00:00:00.000Z',
+    description: '리프레시 토큰 만료 시간',
+    example: '2024-04-19T12:00:00Z',
+    type: String,
     required: true,
-    type: Date,
   })
   refreshTokenExpireDate: Date;
 
-  static from(accessToken: string, accessTokenExpireDate: Date, refreshToken: string, refreshTokenExpireDate: Date) {
-    const dto = new TokenDto();
-    dto.accessToken = accessToken;
-    dto.accessTokenExpireDate = accessTokenExpireDate;
-    dto.refreshToken = refreshToken;
-    dto.refreshTokenExpireDate = refreshTokenExpireDate;
-    return dto;
+  public static from(
+    accessToken: string,
+    accessTokenExpireDate: Date,
+    refreshToken: string,
+    refreshTokenExpireDate: Date,
+  ): TokenDto {
+    const token = new TokenDto();
+    token.accessToken = accessToken;
+    token.accessTokenExpireDate = accessTokenExpireDate;
+    token.refreshToken = refreshToken;
+    token.refreshTokenExpireDate = refreshTokenExpireDate;
+    return token;
   }
 }
