@@ -9,6 +9,10 @@ import {
   Member,
   MemberCredential,
   LoginHistory,
+  Post,
+  PostLike,
+  PostComment,
+  PostCommentLike,
 } from 'src/entities';
 import {
   EntitySchema,
@@ -19,6 +23,10 @@ const entities: MixedList<string | Function | EntitySchema<any>> = [
   Member,
   MemberCredential,
   LoginHistory,
+  Post,
+  PostLike,
+  PostComment,
+  PostCommentLike,
 ];
 
 export const PostgresDataSource = TypeOrmModule.forRootAsync({
