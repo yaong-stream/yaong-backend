@@ -2,6 +2,18 @@ import {
   Module,
 } from '@nestjs/common';
 import {
+  TypeOrmModule,
+} from '@nestjs/typeorm';
+import {
+  MemberModule,
+} from 'src/member/member.module';
+import {
+  ArgonModule,
+} from 'src/argon/argon.module';
+import {
+  LoginHistory,
+} from 'src/entities';
+import {
   AuthController,
 } from './auth.controller';
 import {
@@ -10,18 +22,13 @@ import {
 import {
   AuthJwt,
 } from './auth.jwt';
-import {
-  MemberModule,
-} from 'src/member/member.module';
-import {
-  ArgonModule,
-} from 'src/argon/argon.module';
 
 @Module({
   imports: [
     AuthJwt,
     MemberModule,
     ArgonModule,
+    TypeOrmModule.forFeature([LoginHistory]),
   ],
   controllers: [
     AuthController,

@@ -60,6 +60,7 @@ async function bootstrap() {
       .setTitle('Yaong')
       .setDescription('Yaong API Document')
       .setVersion(pkg.version)
+      .addBearerAuth()
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('/api', app, documentFactory);

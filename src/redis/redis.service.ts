@@ -6,7 +6,9 @@ import {
 import {
   REDIS_CLIENT,
 } from "./redis.constants";
-import { RedisKey } from "ioredis";
+import {
+  type RedisKey,
+} from "ioredis";
 
 type RedisValue = string | Buffer | number;
 
