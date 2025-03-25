@@ -13,9 +13,6 @@ import {
   DataSource,
   Repository,
 } from 'typeorm';
-import {
-  ArgonService,
-} from 'src/argon/argon.service';
 
 @Injectable()
 export class MemberService {
@@ -25,30 +22,34 @@ export class MemberService {
     private readonly datasource: DataSource,
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
-    private readonly argonService: ArgonService,
   ) { }
 
-  createMember(email: string, password: string, nickname: string) {
+  public createMember(email: string, hash: string, nickname: string) {
     return this.datasource.transaction(async (entityManager) => {
       let member = entityManager.create(Member);
       member.email = email;
       member.nickname = nickname;
       member = await entityManager.save(member);
       let credential = entityManager.create(MemberCredential);
-      credential.password = await this.argonService.hashPassword(password);
+      credential.password = hash;
       credential.member = member;
       credential = await entityManager.save(credential);
       return member;
     });
   }
 
-  verifyEmail(email: string) {
+  public verifyEmail(email: string) {
     return this.memberRepository.update(
-      { email },
-      { isEmailVerified: true });
+      {
+        email,
+      },
+      {
+        isEmailVerified: true,
+      },
+    );
   }
 
-  getMemberCredentialByEmail(email: string) {
+  public getMemberCredentialByEmail(email: string) {
     return this.memberRepository
       .createQueryBuilder("member")
       .where('member.email = :email', { email })
@@ -57,7 +58,20 @@ export class MemberService {
       .getOne();
   }
 
-  getMemberById(id: number) {
+  public getMemberCredentialById(id: number) {
+    return this.memberRepository
+      .createQueryBuilder("member")
+      .where('member.id = :id', { id })
+      .leftJoinAndMapOne('member.credential', MemberCredential, 'credential', 'credential.member_id = member.id')
+      .addSelect('credential.password')
+      .getOne();
+  }
+
+  public getMemberById(id: number) {
     return this.memberRepository.findOneBy({ id });
+  }
+
+  public withdraw(memberId: number) {
+    return this.memberRepository.delete({ id: memberId });
   }
 }
