@@ -22,16 +22,20 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
     const authorization = req.headers.authorization;
-    if (!authorization?.startsWith('bearer ')) {
+    if (!authorization?.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing authorization token.');
     }
     try {
       const [, token] = authorization.split(' ');
       const payload = await this.jwtService.verifyAsync(token);
+      if (!payload.sub || !payload.deviceId) {
+        throw new UnauthorizedException('Invalid token payload.');
+      }
       req["sub"] = payload.sub;
+      req["deviceId"] = payload.deviceId;
       return true;
     } catch (e) {
-      throw new UnauthorizedException('Missing authorization token.');
+      throw new UnauthorizedException('Invalid authorization token.');
     }
   }
 }
@@ -40,4 +44,10 @@ export const MemberAuth = createParamDecorator((_: unknown, context: ExecutionCo
   const ctx = context.switchToHttp();
   const req = ctx.getRequest<Request>();
   return req["sub"];
+});
+
+export const DeviceId = createParamDecorator((_: unknown, context: ExecutionContext) => {
+  const ctx = context.switchToHttp();
+  const req = ctx.getRequest<Request>();
+  return req["deviceId"];
 });

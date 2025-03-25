@@ -7,7 +7,10 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
+  UseGuards,
   UnauthorizedException,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,10 +18,11 @@ import {
   ApiQuery,
   ApiBody,
   ApiOkResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import type {
-  JwtPayload,
-} from 'jsonwebtoken';
+  Request,
+} from 'express';
 import {
   RedisService,
 } from 'src/redis/redis.service';
@@ -37,7 +41,13 @@ import {
 } from './dto/request';
 import {
   TokenDto,
+  ActiveSessionsDto,
 } from './dto/response';
+import {
+  AuthGuard,
+  DeviceId,
+  MemberAuth,
+} from './auth.guard';
 
 @ApiTags('Auth')
 @Controller()
@@ -117,6 +127,7 @@ export class AuthController {
   @Post('login')
   public async login(
     @Body() body: LoginDto,
+    @Req() req: Request,
   ) {
     const member = await this.memberService.getMemberCredentialByEmail(body.email);
     if (member == null) {
@@ -129,9 +140,20 @@ export class AuthController {
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid email or password.');
     }
-    const accessToken = await this.authService.createAccessToken(member);
+
+    // 로그인 기록 저장
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const ipAddress = Array.isArray(forwardedFor)
+      ? forwardedFor[0]
+      : typeof forwardedFor === 'string'
+        ? forwardedFor.split(',')[0].trim()
+        : req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = (req.headers['user-agent'] as string) || 'unknown';
+    const { deviceId } = await this.authService.createLoginHistory(member, ipAddress, userAgent);
+
+    const accessToken = await this.authService.createAccessToken(member, deviceId);
     const accessTokenExpireDate = this.authService.getExpireDate(accessToken);
-    const refreshToken = this.authService.createRefreshToken(member);
+    const refreshToken = this.authService.createRefreshToken(member, deviceId);
     const refreshTokenExpireDate = this.authService.getExpireDate(refreshToken);
     return TokenDto.from(accessToken, accessTokenExpireDate, refreshToken, refreshTokenExpireDate);
   }
@@ -151,18 +173,24 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('accesstoken')
-  public async refreshAccessToken(
+  public async reissueAccessToken(
     @Body() body: RefreshTokenDto,
   ) {
-    const payload = this.authService.verifyRefreshToken(body.refreshToken);
-    if (payload.sub == null) {
+    const payload = await this.authService.verifyRefreshToken(body.refreshToken);
+    if (payload.sub == null || payload["deviceId"] == null) {
+      throw new UnauthorizedException('Invalid token payload.');
+    }
+    const memberId: number = Number(payload.sub);
+    const deviceId: string = payload["deviceId"];
+    const loginHistory = await this.authService.validateRefreshTokenInHistory(memberId, deviceId, body.refreshToken);
+    if (loginHistory == null) {
       throw new UnauthorizedException('Invalid refresh token.');
     }
-    const member = await this.memberService.getMemberById(Number(payload.sub));
+    const member = await this.memberService.getMemberById(memberId);
     if (!member) {
       throw new BadRequestException('Invalid refresh token.');
     }
-    const accessToken = await this.authService.createAccessToken(member);
+    const accessToken = await this.authService.createAccessToken(member, deviceId);
     const accessTokenExpireDate = this.authService.getExpireDate(accessToken);
     return TokenDto.from(accessToken, accessTokenExpireDate, body.refreshToken, this.authService.getExpireDate(body.refreshToken));
   }
@@ -182,21 +210,102 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('refreshtoken')
-  public async refreshTokens(
+  public async reissueRefreshTokens(
     @Body() body: RefreshTokenDto,
   ) {
-    const payload = await this.authService.verifyRefreshToken(body.refreshToken) as JwtPayload;
-    if (payload.sub == null) {
-      throw new BadRequestException('Invalid refresh token.');
+    const payload = await this.authService.verifyRefreshToken(body.refreshToken);
+    if (payload.sub == null || payload["deviceId"] == null) {
+      throw new UnauthorizedException('Invalid token payload.');
     }
-    const member = await this.memberService.getMemberById(Number(payload.sub));
+    const memberId: number = Number(payload.sub);
+    const deviceId: string = payload["deviceId"];
+    const loginHistory = await this.authService.validateRefreshTokenInHistory(memberId, deviceId, body.refreshToken);
+    if (loginHistory == null) {
+      throw new UnauthorizedException('Invalid refresh token.');
+    }
+    const member = await this.memberService.getMemberById(memberId);
     if (!member) {
       throw new BadRequestException('Invalid refresh token.');
     }
-    const accessToken = await this.authService.createAccessToken(member);
+    const accessToken = await this.authService.createAccessToken(member, deviceId);
     const accessTokenExpireDate = this.authService.getExpireDate(accessToken);
-    const refreshToken = this.authService.createRefreshToken(member);
+    const refreshToken = this.authService.createRefreshToken(member, deviceId);
     const refreshTokenExpireDate = this.authService.getExpireDate(refreshToken);
+    await this.authService.updateRefreshTokenOnHistory(memberId, deviceId, refreshToken);
     return TokenDto.from(accessToken, accessTokenExpireDate, refreshToken, refreshTokenExpireDate);
+  }
+
+  @ApiOperation({
+    summary: '활성 세션 조회',
+    description: '현재 로그인된 모든 기기의 세션 정보를 조회합니다.'
+  })
+  @ApiOkResponse({
+    type: ActiveSessionsDto,
+    description: '활성 세션 목록',
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('sessions')
+  public async getActiveSessions(
+    @MemberAuth() memberId: number,
+  ) {
+    const sessions = await this.authService.getActiveSessions(memberId);
+    return sessions.map((session) => ActiveSessionsDto.from(session));
+  }
+
+  @ApiOperation({
+    summary: '다른 기기 로그아웃',
+    description: '현재 기기를 제외한 다른 기기에서 로그아웃합니다.'
+  })
+  @ApiOkResponse({
+    description: '로그아웃 성공 여부',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('logout/other')
+  public async logoutOtherDevices(
+    @MemberAuth() memberId: number,
+    @Query('device_ids', new ParseArrayPipe({ items: String, separator: ',' })) targetDeviceIds: string[],
+    @DeviceId() currentDeviceId: string,
+  ) {
+    await this.authService.logoutOtherDevices(memberId, currentDeviceId, targetDeviceIds);
+    return { success: true };
+  }
+
+  @ApiOperation({
+    summary: '로그아웃',
+    description: '현재 기기에서 로그아웃합니다.'
+  })
+  @ApiOkResponse({
+    description: '로그아웃 성공 여부',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  public async logout(
+    @MemberAuth() memberId: number,
+    @DeviceId() deviceId: string,
+    @Req() req: Request,
+  ) {
+    await this.authService.logout(memberId, deviceId);
+    return { success: true };
   }
 }
