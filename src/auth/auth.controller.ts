@@ -176,7 +176,7 @@ export class AuthController {
   public async reissueAccessToken(
     @Body() body: RefreshTokenDto,
   ) {
-    const payload = await this.authService.verifyRefreshToken(body.refreshToken);
+    const payload = this.authService.verifyRefreshToken(body.refreshToken);
     if (payload.sub == null || payload["deviceId"] == null) {
       throw new UnauthorizedException('Invalid token payload.');
     }

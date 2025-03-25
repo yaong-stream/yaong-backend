@@ -6,6 +6,7 @@ import {
 } from '@nestjs/jwt';
 
 export const AuthJwt = JwtModule.registerAsync({
+  global: true,
   inject: [
     ConfigService,
   ],
