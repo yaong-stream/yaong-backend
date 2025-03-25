@@ -107,7 +107,7 @@ export class AuthController {
     } else {
       throw new BadRequestException('Invalid verification code.');
     }
-    return { success: true };
+    return { success: isValidCode };
   }
 
   @ApiOperation({
@@ -277,8 +277,8 @@ export class AuthController {
     @Query('device_ids', new ParseArrayPipe({ items: String, separator: ',' })) targetDeviceIds: string[],
     @DeviceId() currentDeviceId: string,
   ) {
-    await this.authService.logoutOtherDevices(memberId, currentDeviceId, targetDeviceIds);
-    return { success: true };
+    const result = await this.authService.logoutOtherDevices(memberId, currentDeviceId, targetDeviceIds);
+    return { success: result?.affected || 0 > 0 };
   }
 
   @ApiOperation({
@@ -305,7 +305,7 @@ export class AuthController {
     @DeviceId() deviceId: string,
     @Req() req: Request,
   ) {
-    await this.authService.logout(memberId, deviceId);
-    return { success: true };
+    const result = await this.authService.logout(memberId, deviceId);
+    return { success: result.affected || 0 > 0 };
   }
 }
