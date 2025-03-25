@@ -43,6 +43,14 @@ export class Member extends DefaultEntity {
   })
   nickname: string;
 
+  @Column({
+    type: 'text',
+    name: 'profile_image',
+    nullable: false,
+    default: '',
+  })
+  profileImage: string;
+
   @OneToOne(() => MemberCredential, (credential) => credential.member)
   credential: MemberCredential;
 }
