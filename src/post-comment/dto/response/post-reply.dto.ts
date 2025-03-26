@@ -9,6 +9,7 @@ import {
 } from 'src/member/dto/response';
 import {
   Comment,
+  CommentReply,
 } from 'src/post-comment/post-comment.interface';
 
 export class PostReplyDto {
@@ -42,6 +43,15 @@ export class PostReplyDto {
   createdAt: Date;
 
   @ApiProperty({
+    description: '댓글 좋아요 수',
+    example: 10,
+    required: false,
+    nullable: false,
+    type: Number,
+  })
+  likeCount: number;
+
+  @ApiProperty({
     description: '댓글 수정일',
     example: '2021-01-01',
     required: false,
@@ -59,10 +69,11 @@ export class PostReplyDto {
   })
   member: MemberDto;
 
-  static from(postComment: PostComment) {
+  static from(postComment: CommentReply) {
     const dto = new PostReplyDto();
     dto.id = postComment.id;
     dto.content = postComment.content;
+    dto.likeCount = postComment.likeCount;
     dto.createdAt = postComment.createdAt;
     dto.updatedAt = postComment.updatedAt;
     dto.member = MemberDto.from(postComment.member.id, postComment.member.nickname, postComment.member.profileImage);

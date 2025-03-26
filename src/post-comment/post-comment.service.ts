@@ -5,15 +5,17 @@ import {
   InjectRepository,
 } from '@nestjs/typeorm';
 import {
-  LessThan,
-  MoreThan,
   Repository,
 } from 'typeorm';
 import {
   Member,
   PostComment,
+  PostCommentLike,
 } from 'src/entities';
-import { Comment } from './post-comment.interface';
+import {
+  Comment,
+  CommentReply,
+} from './post-comment.interface';
 
 @Injectable()
 export class PostCommentService {
@@ -21,6 +23,8 @@ export class PostCommentService {
   constructor(
     @InjectRepository(PostComment)
     private readonly postCommentRepository: Repository<PostComment>,
+    @InjectRepository(PostCommentLike)
+    private readonly postCommentLikeRepository: Repository<PostCommentLike>,
   ) { }
 
   public createComment(postId: number, memberId: number, content: string) {
@@ -58,12 +62,17 @@ export class PostCommentService {
         .select('count(replies.id)')
         .from(PostComment, 'replies')
         .where('replies.parent_id = comment.id'), 'reply_count')
+      .addSelect((sq) => sq
+        .select('count(like.id)')
+        .from(PostCommentLike, 'like')
+        .where('like.comment_id = comment.id'), 'like_count')
       .where('comment.id = :commentId AND comment.parent_id IS NULL', { commentId })
       .leftJoinAndMapOne('comment.member', Member, 'member', 'member.id = comment.member_id')
       .getRawOne();
     return {
       id: comment.comment_id,
       content: comment.comment_content,
+      likeCount: parseInt(comment.like_count, 10),
       createdAt: comment.comment_created_at,
       updatedAt: comment.comment_updated_at,
       replyCount: parseInt(comment.reply_count, 10),
@@ -76,14 +85,26 @@ export class PostCommentService {
   }
 
   public async getCommentReply(commentId: number) {
-    return this.postCommentRepository.findOne({
-      where: {
-        id: commentId,
+    const reply = await this.postCommentRepository.createQueryBuilder('reply')
+      .addSelect((sq) => sq
+        .select('count(like.id)')
+        .from(PostCommentLike, 'like')
+        .where('like.comment_id = reply.id'), 'like_count')
+      .where('reply.parent_id = :commentId', { commentId })
+      .leftJoinAndMapOne('reply.member', Member, 'member', 'member.id = reply.member_id')
+      .getRawOne();
+    return {
+      id: reply.reply_id,
+      content: reply.reply_content,
+      likeCount: parseInt(reply.like_count, 10),
+      createdAt: reply.reply_created_at,
+      updatedAt: reply.reply_updated_at,
+      member: {
+        id: reply.member_id,
+        nickname: reply.member_nickname,
+        profileImage: reply.member_profile_image,
       },
-      relations: [
-        'member',
-      ],
-    });
+    };
   }
 
   public async getComments(postId: number, lastId: number, limit: number = 10) {
@@ -92,6 +113,10 @@ export class PostCommentService {
         .select('count(replies.id)')
         .from(PostComment, 'replies')
         .where('replies.parent_id = comment.id'), 'reply_count')
+      .addSelect((sq) => sq
+        .select('count(like.id)')
+        .from(PostCommentLike, 'like')
+        .where('like.comment_id = comment.id'), 'like_count')
       .where('comment.post_id = :postId AND comment.id < :lastId AND comment.parent_id IS NULL', { postId, lastId })
       .leftJoinAndMapOne('comment.member', Member, 'member', 'member.id = comment.member_id')
       .orderBy('comment.id', 'DESC')
@@ -100,9 +125,10 @@ export class PostCommentService {
     return comments.map((comment): Comment => ({
       id: comment.comment_id,
       content: comment.comment_content,
+      likeCount: parseInt(comment.like_count, 10),
+      replyCount: parseInt(comment.reply_count, 10),
       createdAt: comment.comment_created_at,
       updatedAt: comment.comment_updated_at,
-      replyCount: parseInt(comment.reply_count, 10),
       member: {
         id: comment.member_id,
         nickname: comment.member_nickname,
@@ -111,25 +137,29 @@ export class PostCommentService {
     }))
   }
 
-  public getCommentReplies(postId: number, commentId: number, firstId: number, limit: number = 10) {
-    return this.postCommentRepository.find({
-      where: {
-        post: {
-          id: postId,
-        },
-        parent: {
-          id: commentId,
-        },
-        id: MoreThan(firstId),
+  public async getCommentReplies(postId: number, commentId: number, firstId: number, limit: number = 10) {
+    const replies = await this.postCommentRepository.createQueryBuilder('reply')
+      .addSelect((sq) => sq
+        .select('count(like.id)')
+        .from(PostCommentLike, 'like')
+        .where('like.comment_id = reply.id'), 'like_count')
+      .where('reply.post_id = :postId AND reply.parent_id = :commentId AND reply.id > :firstId', { postId, commentId, firstId })
+      .leftJoinAndMapOne('reply.member', Member, 'member', 'member.id = reply.member_id')
+      .orderBy('reply.id', 'ASC')
+      .limit(limit)
+      .getRawMany();
+    return replies.map((reply): CommentReply => ({
+      id: reply.reply_id,
+      content: reply.reply_content,
+      likeCount: parseInt(reply.like_count, 10),
+      createdAt: reply.reply_created_at,
+      updatedAt: reply.reply_updated_at,
+      member: {
+        id: reply.member_id,
+        nickname: reply.member_nickname,
+        profileImage: reply.member_profile_image,
       },
-      order: {
-        id: 'ASC',
-      },
-      take: limit,
-      relations: [
-        'member',
-      ],
-    });
+    }));
   }
 
   public updateComment(postId: number, commentId: number, memberId: number, content: string) {
@@ -177,6 +207,29 @@ export class PostCommentService {
       },
       post: {
         id: postId,
+      },
+    });
+  }
+
+  public likeComment(postId: number, commentId: number, memberId: number) {
+    const like = this.postCommentLikeRepository.create({
+      comment: {
+        id: commentId,
+      },
+      member: {
+        id: memberId,
+      },
+    });
+    return this.postCommentLikeRepository.save(like);
+  }
+
+  public unlikeComment(postId: number, commentId: number, memberId: number) {
+    return this.postCommentLikeRepository.delete({
+      comment: {
+        id: commentId,
+      },
+      member: {
+        id: memberId,
       },
     });
   }
