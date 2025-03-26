@@ -336,4 +336,97 @@ export class PostCommentController {
       success: (result.affected || 0) > 0,
     };
   }
+
+
+  @ApiOperation({
+    summary: '댓글/대댓글 좋아요',
+    description: '댓글/대댓글 좋아요를 추가합니다.',
+  })
+  @ApiParam({
+    name: 'post_id',
+    description: '포스트 ID',
+  })
+  @ApiParam({
+    name: 'comment_id',
+    description: '댓글 ID',
+  })
+  @ApiOkResponse({
+    description: '댓글/대댓글 좋아요 추가 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post(':comment_id/like')
+  public async likePost(
+    @Param('post_id') postId: number,
+    @Param('comment_id') commentId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    try {
+      const like = await this.postCommentService.likeComment(postId, commentId, memberId);
+      return {
+        success: like != null,
+      };
+    } catch (error) {
+      return {
+        success: false,
+      };
+    }
+  }
+
+  @ApiOperation({
+    summary: '댓글/대댓글 좋아요 취소',
+    description: '댓글/대댓글 좋아요를 취소합니다.',
+  })
+  @ApiParam({
+    name: 'post_id',
+    description: '포스트 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiParam({
+    name: 'comment_id',
+    description: '댓글 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '댓글/대댓글 좋아요 취소 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete(':comment_id/like')
+  public async unlikePost(
+    @Param('post_id') postId: number,
+    @Param('comment_id') commentId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    const result = await this.postCommentService.unlikeComment(postId, commentId, memberId);
+    return {
+      success: (result.affected || 0) > 0,
+    };
+  }
 }

@@ -1,7 +1,9 @@
 import {
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
+  Unique,
 } from "typeorm";
 import {
   DefaultEntity,
@@ -13,16 +15,21 @@ import {
   Member,
 } from "./member";
 
+@Unique([
+  'comment',
+  'member',
+])
 @Entity({
   name: "post_comment_likes",
 })
 export class PostCommentLike extends DefaultEntity {
 
+  @Index()
   @ManyToOne(() => PostComment, { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({
-    name: "post_comment_id",
+    name: "comment_id",
   })
-  postComment: PostComment;
+  comment: PostComment;
 
   @ManyToOne(() => Member, { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({

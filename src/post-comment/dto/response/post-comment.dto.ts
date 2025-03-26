@@ -58,6 +58,15 @@ export class PostCommentDto {
   member: MemberDto;
 
   @ApiProperty({
+    description: '댓글 좋아요 수',
+    example: 10,
+    required: false,
+    nullable: false,
+    type: Number,
+  })
+  likeCount: number = 0;
+
+  @ApiProperty({
     description: '대댓글 개수',
     example: 3,
     required: true,
@@ -66,13 +75,12 @@ export class PostCommentDto {
   })
   replyCount: number = 0;
 
-  static from(postComment: PostComment | Comment) {
+  static from(postComment: Comment) {
     const dto = new PostCommentDto();
     dto.id = postComment.id;
     dto.content = postComment.content;
-    if ('replyCount' in postComment) {
-      dto.replyCount = postComment.replyCount;
-    };
+    dto.replyCount = postComment.replyCount;
+    dto.likeCount = postComment.likeCount;
     dto.createdAt = postComment.createdAt;
     dto.updatedAt = postComment.updatedAt;
     dto.member = MemberDto.from(postComment.member.id, postComment.member.nickname, postComment.member.profileImage);

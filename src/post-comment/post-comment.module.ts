@@ -6,6 +6,7 @@ import {
 } from '@nestjs/typeorm';
 import {
   PostComment,
+  PostCommentLike,
 } from 'src/entities';
 import {
   PostCommentController,
@@ -16,7 +17,7 @@ import {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PostComment]),
+    TypeOrmModule.forFeature([PostComment, PostCommentLike]),
   ],
   controllers: [
     PostCommentController,
