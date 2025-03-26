@@ -203,7 +203,9 @@ export class PostController {
     schema: {
       type: 'object',
       properties: {
-        success: { type: 'boolean' },
+        success: {
+          type: 'boolean',
+        },
       },
       example: {
         success: true,
@@ -218,11 +220,87 @@ export class PostController {
     @MemberAuth() memberId: number,
     @Param('post_id') postId: number,
   ) {
-    const post = await this.postService.getPostByMemberIdAndId(memberId, postId);
-    if (post == null) {
-      throw new NotFoundException('Post not found');
-    }
     const result = await this.postService.deletePost(memberId, postId);
+    return {
+      success: (result.affected || 0) > 0,
+    };
+  }
+
+  @ApiOperation({
+    summary: '포스트 좋아요',
+    description: '포스트 좋아요를 추가합니다.',
+  })
+  @ApiParam({
+    name: 'post_id',
+    description: '포스트 ID',
+  })
+  @ApiOkResponse({
+    description: '포스트 좋아요 추가 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post(':post_id/like')
+  public async likePost(
+    @Param('post_id') postId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    try {
+      const like = await this.postService.likePost(postId, memberId);
+      return {
+        success: like != null,
+      };
+    } catch (error) {
+      return {
+        success: false,
+      };
+    }
+  }
+
+  @ApiOperation({
+    summary: '포스트 좋아요 취소',
+    description: '포스트 좋아요를 취소합니다.',
+  })
+  @ApiParam({
+    name: 'post_id',
+    description: '포스트 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '포스트 좋아요 취소 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete(':post_id/like')
+  public async unlikePost(
+    @Param('post_id') postId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    const result = await this.postService.unlikePost(postId, memberId);
     return {
       success: (result.affected || 0) > 0,
     };

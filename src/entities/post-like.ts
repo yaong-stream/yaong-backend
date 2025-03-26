@@ -1,32 +1,39 @@
 import {
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
-} from "typeorm";
+  Unique,
+} from 'typeorm';
 import {
   DefaultEntity,
-} from "./default-entity";
+} from './default-entity';
 import {
   Post,
-} from "./post";
+} from './post';
 import {
   Member,
-} from "./member";
+} from './member';
 
+@Unique([
+  'post',
+  'member',
+])
 @Entity({
-  name: "post_likes",
+  name: 'post_likes',
 })
 export class PostLike extends DefaultEntity {
 
-  @ManyToOne(() => Post, { nullable: false, onDelete: "CASCADE" })
+  @Index()
+  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
-    name: "post_id",
+    name: 'post_id',
   })
   post: Post;
 
-  @ManyToOne(() => Member, { nullable: false, onDelete: "CASCADE" })
+  @ManyToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
-    name: "member_id",
+    name: 'member_id',
   })
   member: Member;
 }

@@ -2,11 +2,11 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import {
-  Post,
-} from 'src/entities';
-import {
   MemberDto,
 } from 'src/member/dto/response';
+import {
+  PostWithLikeCount,
+} from 'src/post/post.interface';
 
 export class PostDto {
 
@@ -27,6 +27,15 @@ export class PostDto {
     nullable: false,
   })
   content: string;
+
+  @ApiProperty({
+    description: '게시글 좋아요 수',
+    example: 1,
+    required: true,
+    type: Number,
+    nullable: false,
+  })
+  likeCount: number;
 
   @ApiProperty({
     description: '게시글 작성자',
@@ -52,10 +61,11 @@ export class PostDto {
   })
   updatedAt: Date;
 
-  static from(post: Post) {
+  static from(post: PostWithLikeCount) {
     const dto = new PostDto();
     dto.id = post.id;
     dto.content = post.content;
+    dto.likeCount = post.likeCount;
     dto.createdAt = post.createdAt;
     dto.updatedAt = post.updatedAt;
     dto.member = MemberDto.from(post.member.id, post.member.nickname, post.member.profileImage);

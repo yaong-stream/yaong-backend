@@ -7,8 +7,6 @@ import {
 import {
   Post,
   PostLike,
-  PostComment,
-  PostCommentLike,
 } from "src/entities";
 import {
   PostController,
@@ -22,8 +20,6 @@ import {
     TypeOrmModule.forFeature([
       Post,
       PostLike,
-      PostComment,
-      PostCommentLike,
     ]),
   ],
   controllers: [
