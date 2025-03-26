@@ -11,6 +11,9 @@ import {
 import {
   Post,
 } from "./post";
+import {
+  Member,
+} from "./member";
 
 @Entity({
   name: "post_comments",
@@ -38,4 +41,10 @@ export class PostComment extends DefaultEntity {
 
   @OneToMany(() => PostComment, (comment) => comment.parent)
   children: PostComment[];
+
+  @ManyToOne(() => Member, { nullable: false, onDelete: "CASCADE" })
+  @JoinColumn({
+    name: "member_id",
+  })
+  member: Member;
 }

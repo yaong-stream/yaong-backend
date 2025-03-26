@@ -278,7 +278,9 @@ export class AuthController {
     @DeviceId() currentDeviceId: string,
   ) {
     const result = await this.authService.logoutOtherDevices(memberId, currentDeviceId, targetDeviceIds);
-    return { success: result?.affected || 0 > 0 };
+    return {
+      success: (result.affected || 0) > 0,
+    };
   }
 
   @ApiOperation({
@@ -306,6 +308,8 @@ export class AuthController {
     @Req() req: Request,
   ) {
     const result = await this.authService.logout(memberId, deviceId);
-    return { success: result.affected || 0 > 0 };
+    return {
+      success: (result.affected || 0) > 0,
+    };
   }
 }

@@ -22,6 +22,7 @@ import {
   ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 import {
   AuthGuard,
@@ -38,6 +39,7 @@ import {
   PostDto,
 } from './dto/response/post.dto';
 
+@ApiTags('Post')
 @Controller()
 export class PostController {
   constructor(
@@ -66,7 +68,6 @@ export class PostController {
     @Body() body: CreatePostDto,
   ) {
     const savedPost = await this.postService.createPost(memberId, body.content);
-    console.log(savedPost);
     const post = await this.postService.getPostByMemberIdAndId(memberId, savedPost.id);
     if (post == null) {
       throw new NotFoundException('Post not found');
@@ -178,7 +179,7 @@ export class PostController {
       throw new NotFoundException('Post not found');
     }
     const updatedPost = await this.postService.updatePost(memberId, postId, body.content);
-    if (updatedPost.affected || 0 === 0) {
+    if (!updatedPost.affected) {
       throw new InternalServerErrorException('Failed to update post');
     }
     post = await this.postService.getPostByMemberIdAndId(memberId, postId);
@@ -224,7 +225,7 @@ export class PostController {
     }
     const result = await this.postService.deletePost(memberId, postId);
     return {
-      success: result.affected || 0 > 0,
+      success: (result.affected || 0) > 0,
     };
   }
 }

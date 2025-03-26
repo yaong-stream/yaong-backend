@@ -121,6 +121,8 @@ export class MemberController {
       throw new BadRequestException('Password is incorrect.');
     }
     const result = await this.memberService.withdraw(memberId);
-    return { success: result.affected || 0 > 0 };
+    return {
+      success: (result.affected || 0) > 0,
+    };
   }
 }

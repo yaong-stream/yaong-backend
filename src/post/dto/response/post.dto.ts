@@ -1,4 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiProperty,
+} from '@nestjs/swagger';
 import {
   Post,
 } from 'src/entities';
@@ -34,10 +36,28 @@ export class PostDto {
   })
   member: MemberDto;
 
+  @ApiProperty({
+    description: '게시글 작성 시간',
+    required: true,
+    type: Date,
+    nullable: false,
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: '게시글 수정 시간',
+    required: true,
+    type: Date,
+    nullable: false,
+  })
+  updatedAt: Date;
+
   static from(post: Post) {
     const dto = new PostDto();
     dto.id = post.id;
     dto.content = post.content;
+    dto.createdAt = post.createdAt;
+    dto.updatedAt = post.updatedAt;
     dto.member = MemberDto.from(post.member);
     return dto;
   }
