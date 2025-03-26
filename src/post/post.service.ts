@@ -5,18 +5,24 @@ import {
   InjectRepository,
 } from '@nestjs/typeorm';
 import {
-  LessThan,
   Repository,
 } from 'typeorm';
 import {
+  Member,
   Post,
+  PostLike,
 } from 'src/entities';
+import {
+  PostWithLikeCount,
+} from './post.interface';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    @InjectRepository(PostLike)
+    private readonly postLikeRepository: Repository<PostLike>,
   ) { }
 
   public async createPost(
@@ -33,50 +39,72 @@ export class PostService {
     return post;
   }
 
-  public getPosts(streamer: string, lastId: number, limit: number = 10) {
-    return this.postRepository.find({
-      where: {
-        member: {
-          nickname: streamer,
-        },
-        id: LessThan(lastId),
+  public async getPosts(streamer: string, lastId: number, limit: number = 10) {
+    const posts = await this.postRepository.createQueryBuilder('post')
+      .addSelect((sq) => sq.select('count(like.id)')
+        .from(PostLike, 'like')
+        .where('like.post_id = post.id'), 'like_count')
+      .leftJoinAndMapOne('post.member', Member, 'member', 'member.id = post.member_id')
+      .where('member.nickname = :streamer AND post.id < :lastId', { streamer, lastId })
+      .orderBy('post.id', 'DESC')
+      .limit(limit)
+      .getRawMany();
+    return posts.map((post) => ({
+      id: post.post_id,
+      content: post.post_content,
+      likeCount: parseInt(post.like_count, 10),
+      createdAt: post.post_created_at,
+      updatedAt: post.post_updated_at,
+      member: {
+        id: post.member_id,
+        nickname: post.member_nickname,
+        profileImage: post.member_profile_image,
       },
-      order: {
-        id: 'DESC',
-      },
-      take: limit,
-      relations: [
-        'member',
-      ],
-    });
+    })) as PostWithLikeCount[];
   }
 
-  public getPostByMemberIdAndId(memberId: number, id: number) {
-    return this.postRepository.findOne({
-      where: {
-        member: {
-          id: memberId,
-        },
-        id,
+  public async getPostByMemberIdAndId(memberId: number, postId: number) {
+    const post = await this.postRepository.createQueryBuilder('post')
+      .addSelect((sq) => sq.select('count(like.id)')
+        .from(PostLike, 'like')
+        .where('like.post_id = post.id'), 'like_count')
+      .leftJoinAndMapOne('post.member', Member, 'member', 'member.id = post.member_id')
+      .where('member.id = :memberId AND post.id = :postId', { memberId, postId })
+      .getRawOne();
+    return {
+      id: post.post_id,
+      content: post.post_content,
+      likeCount: parseInt(post.like_count, 10),
+      createdAt: post.post_created_at,
+      updatedAt: post.post_updated_at,
+      member: {
+        id: post.member_id,
+        nickname: post.member_nickname,
+        profileImage: post.member_profile_image,
       },
-      relations: [
-        'member',
-      ],
-    });
+    } as PostWithLikeCount;
   }
 
-  public getPost(streamer: string, id: number) {
-    return this.postRepository.findOne({
-      where: {
-        member: {
-          nickname: streamer,
-        },
-        id,
+  public async getPost(streamer: string, postId: number) {
+    const post = await this.postRepository.createQueryBuilder('post')
+      .addSelect((sq) => sq.select('count(like.id)')
+        .from(PostLike, 'like')
+        .where('like.post_id = post.id'), 'like_count')
+      .leftJoinAndMapOne('post.member', Member, 'member', 'member.id = post.member_id')
+      .where('member.nickname = :streamer AND post.id = :postId', { streamer, postId })
+      .getRawOne();
+    return {
+      id: post.post_id,
+      content: post.post_content,
+      likeCount: parseInt(post.like_count, 10),
+      createdAt: post.post_created_at,
+      updatedAt: post.post_updated_at,
+      member: {
+        id: post.member_id,
+        nickname: post.member_nickname,
+        profileImage: post.member_profile_image,
       },
-      relations: [
-        'member',
-      ],
-    });
+    } as PostWithLikeCount;
   }
 
   public updatePost(memberId: number, postId: number, content: string) {
@@ -99,6 +127,29 @@ export class PostService {
         id: memberId,
       },
       id: postId,
+    });
+  }
+
+  public likePost(postId: number, memberId: number) {
+    const like = this.postLikeRepository.create({
+      post: {
+        id: postId,
+      },
+      member: {
+        id: memberId,
+      },
+    });
+    return this.postLikeRepository.save(like);
+  }
+
+  public unlikePost(postId: number, memberId: number) {
+    return this.postLikeRepository.delete({
+      post: {
+        id: postId,
+      },
+      member: {
+        id: memberId,
+      },
     });
   }
 }
