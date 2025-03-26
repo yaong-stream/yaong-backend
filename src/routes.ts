@@ -13,6 +13,9 @@ import {
 import {
   PostModule,
 } from "./post/post.module";
+import {
+  PostCommentModule,
+} from "./post-comment/post-comment.module";
 
 export const Routes = RouterModule.register([
   {
@@ -30,12 +33,18 @@ export const Routes = RouterModule.register([
             module: AuthModule,
           },
           {
-            path: "member",
+            path: "members",
             module: MemberModule,
           },
           {
-            path: "post",
+            path: "posts",
             module: PostModule,
+            children: [
+              {
+                path: ':post_id/comments',
+                module: PostCommentModule,
+              }
+            ],
           },
         ],
       },
@@ -48,4 +57,5 @@ export const RegisteredModules = [
   AuthModule,
   MemberModule,
   PostModule,
+  PostCommentModule,
 ];

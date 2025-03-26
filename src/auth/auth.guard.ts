@@ -21,9 +21,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
-    console.log(req.headers);
     const authorization = req.headers.authorization;
-    console.log(authorization);
     if (!authorization?.toLowerCase().startsWith('bearer ')) {
       throw new UnauthorizedException('Missing authorization token.');
     }
