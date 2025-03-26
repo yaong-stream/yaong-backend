@@ -8,20 +8,29 @@ import {
   DefaultEntity,
 } from './default-entity';
 import {
+  Stream,
+} from 'nodemailer/lib/xoauth2';
+import {
   Member,
 } from './member';
 
 @Entity({
-  name: 'posts',
+  name: 'stream_chats',
 })
-export class Post extends DefaultEntity {
+export class StreamChat extends DefaultEntity {
 
   @Column({
     type: 'text',
+    name: 'chat',
     nullable: false,
-    name: 'content',
   })
-  content: string;
+  chat: string;
+
+  @ManyToOne(() => Stream, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'stream_id',
+  })
+  stream: Stream;
 
   @ManyToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({

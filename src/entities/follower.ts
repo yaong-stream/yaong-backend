@@ -1,5 +1,4 @@
 import {
-  Column,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -8,20 +7,22 @@ import {
   DefaultEntity,
 } from './default-entity';
 import {
+  Stream,
+} from './stream';
+import {
   Member,
 } from './member';
 
 @Entity({
-  name: 'posts',
+  name: 'followers',
 })
-export class Post extends DefaultEntity {
+export class Follower extends DefaultEntity {
 
-  @Column({
-    type: 'text',
-    nullable: false,
-    name: 'content',
+  @ManyToOne(() => Stream, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'stream_id',
   })
-  content: string;
+  stream: Stream;
 
   @ManyToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
