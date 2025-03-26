@@ -58,7 +58,7 @@ export class PostDto {
     dto.content = post.content;
     dto.createdAt = post.createdAt;
     dto.updatedAt = post.updatedAt;
-    dto.member = MemberDto.from(post.member);
+    dto.member = MemberDto.from(post.member.id, post.member.nickname, post.member.profileImage);
     return dto;
   }
 }

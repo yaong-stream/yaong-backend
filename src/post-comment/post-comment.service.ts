@@ -10,8 +10,10 @@ import {
   Repository,
 } from 'typeorm';
 import {
+  Member,
   PostComment,
 } from 'src/entities';
+import { Comment } from './post-comment.interface';
 
 @Injectable()
 export class PostCommentService {
@@ -50,7 +52,30 @@ export class PostCommentService {
     return this.postCommentRepository.save(reply);
   }
 
-  public getComment(commentId: number) {
+  public async getComment(commentId: number) {
+    const comment = await this.postCommentRepository.createQueryBuilder('comment')
+      .addSelect((sq) => sq
+        .select('count(replies.id)')
+        .from(PostComment, 'replies')
+        .where('replies.parent_id = comment.id'), 'reply_count')
+      .where('comment.id = :commentId AND comment.parent_id IS NULL', { commentId })
+      .leftJoinAndMapOne('comment.member', Member, 'member', 'member.id = comment.member_id')
+      .getRawOne();
+    return {
+      id: comment.comment_id,
+      content: comment.comment_content,
+      createdAt: comment.comment_created_at,
+      updatedAt: comment.comment_updated_at,
+      replyCount: parseInt(comment.reply_count, 10),
+      member: {
+        id: comment.member_id,
+        nickname: comment.member_nickname,
+        profileImage: comment.member_profile_image,
+      },
+    } as Comment;
+  }
+
+  public async getCommentReply(commentId: number) {
     return this.postCommentRepository.findOne({
       where: {
         id: commentId,
@@ -61,22 +86,29 @@ export class PostCommentService {
     });
   }
 
-  public getComments(postId: number, lastId: number, limit: number = 10) {
-    return this.postCommentRepository.find({
-      where: {
-        post: {
-          id: postId,
-        },
-        id: LessThan(lastId),
+  public async getComments(postId: number, lastId: number, limit: number = 10) {
+    const comments = await this.postCommentRepository.createQueryBuilder('comment')
+      .addSelect((sq) => sq
+        .select('count(replies.id)')
+        .from(PostComment, 'replies')
+        .where('replies.parent_id = comment.id'), 'reply_count')
+      .where('comment.post_id = :postId AND comment.id < :lastId AND comment.parent_id IS NULL', { postId, lastId })
+      .leftJoinAndMapOne('comment.member', Member, 'member', 'member.id = comment.member_id')
+      .orderBy('comment.id', 'DESC')
+      .limit(limit)
+      .getRawMany();
+    return comments.map((comment): Comment => ({
+      id: comment.comment_id,
+      content: comment.comment_content,
+      createdAt: comment.comment_created_at,
+      updatedAt: comment.comment_updated_at,
+      replyCount: parseInt(comment.reply_count, 10),
+      member: {
+        id: comment.member_id,
+        nickname: comment.member_nickname,
+        profileImage: comment.member_profile_image,
       },
-      order: {
-        id: 'DESC',
-      },
-      take: limit,
-      relations: [
-        'member',
-      ],
-    });
+    }))
   }
 
   public getCommentReplies(postId: number, commentId: number, firstId: number, limit: number = 10) {
@@ -100,12 +132,35 @@ export class PostCommentService {
     });
   }
 
-  public updateComment(commentId: number, memberId: number, content: string) {
+  public updateComment(postId: number, commentId: number, memberId: number, content: string) {
     return this.postCommentRepository.update(
       {
         id: commentId,
         member: {
           id: memberId,
+        },
+        post: {
+          id: postId,
+        },
+      },
+      {
+        content,
+      },
+    );
+  }
+
+  public updateCommentReply(postId: number, commentId: number, replyId: number, memberId: number, content: string) {
+    return this.postCommentRepository.update(
+      {
+        id: replyId,
+        member: {
+          id: memberId,
+        },
+        parent: {
+          id: commentId,
+        },
+        post: {
+          id: postId,
         },
       },
       {

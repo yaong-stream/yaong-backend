@@ -33,7 +33,7 @@ export class PostComment extends DefaultEntity {
   })
   post: Post;
 
-  @ManyToOne(() => PostComment, { nullable: true, onDelete: "SET NULL" })
+  @ManyToOne(() => PostComment, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({
     name: "parent_id",
   })

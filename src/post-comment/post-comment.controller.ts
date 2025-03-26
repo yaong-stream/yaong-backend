@@ -1,11 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -32,6 +32,7 @@ import {
 } from './post-comment.service';
 import {
   PostCommentDto,
+  PostReplyDto,
 } from './dto/response';
 import {
   CreatePostCommentDto,
@@ -107,13 +108,12 @@ export class PostCommentController {
     @MemberAuth() memberId: number,
     @Body() body: CreatePostCommentDto,
   ) {
-    console.log(postId, commentId, memberId, body.content)
     const savedComment = await this.postCommentService.createCommentReply(postId, commentId, memberId, body.content);
-    const comment = await this.postCommentService.getComment(savedComment.id);
+    const comment = await this.postCommentService.getCommentReply(savedComment.id);
     if (comment == null) {
       throw new NotFoundException('Comment not found');
     }
-    return PostCommentDto.from(comment);
+    return PostReplyDto.from(comment);
   }
 
   @ApiOperation({
@@ -194,7 +194,7 @@ export class PostCommentController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
   ) {
     const replies = await this.postCommentService.getCommentReplies(postId, commentId, firstId, limit);
-    return replies.map(comment => PostCommentDto.from(comment));
+    return replies.map(comment => PostReplyDto.from(comment));
   }
 
   @ApiOperation({
@@ -222,6 +222,7 @@ export class PostCommentController {
   @HttpCode(HttpStatus.OK)
   @Patch(':comment_id')
   public async updateComment(
+    @Param('post_id') postId: number,
     @Param('comment_id') commentId: number,
     @MemberAuth() memberId: number,
     @Body() body: UpdatePostCommentDto,
@@ -230,15 +231,67 @@ export class PostCommentController {
     if (comment == null) {
       throw new NotFoundException('Comment not found');
     }
-    const result = await this.postCommentService.updateComment(commentId, memberId, body.content);
+    const result = await this.postCommentService.updateComment(postId, commentId, memberId, body.content);
     if (!result.affected) {
-      throw new InternalServerErrorException('Failed to update comment');
+      throw new BadRequestException('Failed to update comment');
     }
     comment = await this.postCommentService.getComment(commentId);
     if (comment == null) {
       throw new NotFoundException('Comment not found');
     }
     return PostCommentDto.from(comment);
+  }
+
+  @ApiOperation({
+    summary: '대댓글 수정',
+    description: '자신이 작성한 대댓글을 수정합니다.'
+  })
+  @ApiParam({
+    name: 'post_id',
+    description: '게시글 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiParam({
+    name: 'comment_id',
+    description: '댓글 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiParam({
+    name: 'reply_id',
+    description: '대댓글 ID',
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '대댓글 수정 성공 여부',
+    type: PostReplyDto,
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch(':comment_id/replies/:reply_id')
+  public async updateCommentReply(
+    @Param('post_id') postId: number,
+    @Param('comment_id') commentId: number,
+    @Param('reply_id') replyId: number,
+    @MemberAuth() memberId: number,
+    @Body() body: UpdatePostCommentDto,
+  ) {
+    let reply = await this.postCommentService.getCommentReply(replyId);
+    if (reply == null) {
+      throw new NotFoundException('Comment reply not found');
+    }
+    const result = await this.postCommentService.updateCommentReply(postId, commentId, replyId, memberId, body.content);
+    if (!result.affected) {
+      throw new BadRequestException('Failed to update comment reply');
+    }
+    reply = await this.postCommentService.getCommentReply(replyId);
+    if (reply == null) {
+      throw new NotFoundException('Comment reply not found');
+    }
+    return PostReplyDto.from(reply);
   }
 
   @ApiOperation({
@@ -278,10 +331,6 @@ export class PostCommentController {
     @Param('comment_id') commentId: number,
     @MemberAuth() memberId: number,
   ) {
-    const comment = await this.postCommentService.getComment(commentId);
-    if (comment == null) {
-      throw new NotFoundException('Comment not found');
-    }
     const result = await this.postCommentService.deleteComment(postId, commentId, memberId);
     return {
       success: (result.affected || 0) > 0,
