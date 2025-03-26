@@ -7,9 +7,11 @@ import {
 import {
   MemberDto,
 } from 'src/member/dto/response';
-import { Comment } from 'src/post-comment/post-comment.interface';
+import {
+  Comment,
+} from 'src/post-comment/post-comment.interface';
 
-export class PostCommentDto {
+export class PostReplyDto {
 
   @ApiProperty({
     description: '댓글 ID',
@@ -57,22 +59,10 @@ export class PostCommentDto {
   })
   member: MemberDto;
 
-  @ApiProperty({
-    description: '대댓글 개수',
-    example: 3,
-    required: true,
-    nullable: false,
-    type: Number,
-  })
-  replyCount: number = 0;
-
-  static from(postComment: PostComment | Comment) {
-    const dto = new PostCommentDto();
+  static from(postComment: PostComment) {
+    const dto = new PostReplyDto();
     dto.id = postComment.id;
     dto.content = postComment.content;
-    if ('replyCount' in postComment) {
-      dto.replyCount = postComment.replyCount;
-    };
     dto.createdAt = postComment.createdAt;
     dto.updatedAt = postComment.updatedAt;
     dto.member = MemberDto.from(postComment.member.id, postComment.member.nickname, postComment.member.profileImage);

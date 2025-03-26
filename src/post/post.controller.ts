@@ -6,7 +6,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -180,7 +179,7 @@ export class PostController {
     }
     const updatedPost = await this.postService.updatePost(memberId, postId, body.content);
     if (!updatedPost.affected) {
-      throw new InternalServerErrorException('Failed to update post');
+      throw new BadRequestException('Failed to update post');
     }
     post = await this.postService.getPostByMemberIdAndId(memberId, postId);
     if (post == null) {

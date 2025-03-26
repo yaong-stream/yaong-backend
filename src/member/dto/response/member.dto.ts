@@ -35,11 +35,11 @@ export class MemberDto {
   })
   profileImage: string;
 
-  static from(member: Member) {
+  static from(id: number, nickname: string, profileImage: string) {
     const dto = new MemberDto();
-    dto.id = member.id;
-    dto.nickname = member.nickname;
-    dto.profileImage = member.profileImage;
+    dto.id = id;
+    dto.nickname = nickname;
+    dto.profileImage = profileImage;
     return dto;
   }
 }
