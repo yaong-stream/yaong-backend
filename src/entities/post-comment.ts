@@ -4,47 +4,47 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-} from "typeorm";
+} from 'typeorm';
 import {
   DefaultEntity,
-} from "./default-entity";
+} from './default-entity';
 import {
   Post,
-} from "./post";
+} from './post';
 import {
   Member,
-} from "./member";
+} from './member';
 
 @Entity({
-  name: "post_comments",
+  name: 'post_comments',
 })
 export class PostComment extends DefaultEntity {
 
   @Column({
-    type: "text",
+    type: 'text',
     nullable: false,
-    name: "content",
+    name: 'content',
   })
   content: string;
 
-  @ManyToOne(() => Post, { nullable: false, onDelete: "CASCADE" })
+  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
-    name: "post_id",
+    name: 'post_id',
   })
   post: Post;
 
-  @ManyToOne(() => PostComment, { nullable: true, onDelete: "CASCADE" })
+  @ManyToOne(() => PostComment, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({
-    name: "parent_id",
+    name: 'parent_id',
   })
   parent: PostComment;
 
   @OneToMany(() => PostComment, (comment) => comment.parent)
   children: PostComment[];
 
-  @ManyToOne(() => Member, { nullable: false, onDelete: "CASCADE" })
+  @ManyToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
-    name: "member_id",
+    name: 'member_id',
   })
   member: Member;
 }
