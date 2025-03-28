@@ -1,43 +1,43 @@
 import {
   RouterModule,
-} from "@nestjs/core";
+} from '@nestjs/core';
 import {
   HealthModule,
-} from "./health/health.module";
+} from './health/health.module';
 import {
   AuthModule,
-} from "./auth/auth.module";
+} from './auth/auth.module';
 import {
   MemberModule,
-} from "./member/member.module";
+} from './member/member.module';
 import {
   PostModule,
-} from "./post/post.module";
+} from './post/post.module';
 import {
   PostCommentModule,
-} from "./post-comment/post-comment.module";
+} from './post-comment/post-comment.module';
 
 export const Routes = RouterModule.register([
   {
-    path: "/api",
+    path: '/api',
     children: [
       {
-        path: "v1",
+        path: 'v1',
         children: [
           {
-            path: "health",
+            path: 'health',
             module: HealthModule,
           },
           {
-            path: "auth",
+            path: 'auth',
             module: AuthModule,
           },
           {
-            path: "members",
+            path: 'members',
             module: MemberModule,
           },
           {
-            path: "posts",
+            path: 'posts',
             module: PostModule,
             children: [
               {

@@ -81,7 +81,9 @@ export class MemberController {
     this.redisService.setex(`yaong-email/${member.email}`, verifyCode, 3600);
     const verifyLink = `${this.configService.getOrThrow<string>('domain')}/api/v1/auth/verify?email=${encodeURIComponent(member.email)}&code=${encodeURIComponent(verifyCode)}`;
     this.mailerService.sendEmailVerify(member.email, verifyLink);
-    return { success: true };
+    return {
+      success: true,
+    };
   }
 
   @ApiOperation({

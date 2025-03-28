@@ -2,6 +2,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  Unique,
 } from 'typeorm';
 import {
   DefaultEntity,
@@ -13,6 +14,10 @@ import {
   Member,
 } from './member';
 
+@Unique([
+  'stream',
+  'member',
+])
 @Entity({
   name: 'followers',
 })

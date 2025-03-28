@@ -8,11 +8,11 @@ import {
   DefaultEntity,
 } from './default-entity';
 import {
-  Stream,
-} from 'nodemailer/lib/xoauth2';
-import {
   Member,
 } from './member';
+import {
+  Stream,
+} from './stream';
 
 @Entity({
   name: 'stream_chats',

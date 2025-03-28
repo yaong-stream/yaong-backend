@@ -28,6 +28,11 @@ const env = () => ({
     accessSecret: process.env.JWT_ACCESS_SECRET,
     refreshSecret: process.env.JWT_REFRESH_SECRET,
   },
+  mistServer: {
+    url: process.env.MIST_SERVER_HOST,
+    username: process.env.MIST_SERVER_USERNAME,
+    password: process.env.MIST_SERVER_PASSWORD,
+  },
 });
 
 export const Configure = ConfigModule.forRoot({

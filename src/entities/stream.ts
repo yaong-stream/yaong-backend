@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
+  Unique,
 } from 'typeorm';
 import {
   DefaultEntity,
@@ -15,6 +16,9 @@ import {
   Category,
 } from './category';
 
+@Unique([
+  'member',
+])
 @Entity({
   name: 'streams',
 })
