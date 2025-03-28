@@ -13,6 +13,11 @@ import {
   PostLike,
   PostComment,
   PostCommentLike,
+  Stream,
+  Category,
+  StreamHistory,
+  Follower,
+  StreamChat,
 } from 'src/entities';
 import {
   EntitySchema,
@@ -27,6 +32,11 @@ const entities: MixedList<string | Function | EntitySchema<any>> = [
   PostLike,
   PostComment,
   PostCommentLike,
+  Stream,
+  StreamHistory,
+  StreamChat,
+  Category,
+  Follower,
 ];
 
 export const PostgresDataSource = TypeOrmModule.forRootAsync({

@@ -6,3 +6,7 @@ export * from './post-like';
 export * from './post-comment';
 export * from './post-comment-like';
 export * from './category';
+export * from './stream';
+export * from './stream-chat';
+export * from './stream-history';
+export * from './follower';
