@@ -21,10 +21,10 @@ export class StreamChat extends DefaultEntity {
 
   @Column({
     type: 'text',
-    name: 'chat',
+    name: 'message',
     nullable: false,
   })
-  chat: string;
+  message: string;
 
   @ManyToOne(() => Stream, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({

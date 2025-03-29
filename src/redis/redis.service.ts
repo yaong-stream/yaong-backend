@@ -1,14 +1,14 @@
-import type Redis from "ioredis";
+import type Redis from 'ioredis';
 import {
   Inject,
   Injectable,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   REDIS_CLIENT,
-} from "./redis.constants";
+} from './redis.constants';
 import {
   type RedisKey,
-} from "ioredis";
+} from 'ioredis';
 
 type RedisValue = string | Buffer | number;
 
@@ -42,5 +42,25 @@ export class RedisService {
 
   public del(...keys: RedisKey[]) {
     return this.redisClient.del(keys);
+  }
+
+  public hset(key: RedisKey, obj: object) {
+    return this.redisClient.hset(key, obj);
+  }
+
+  public hdel(key: RedisKey, ...fields: (string | Buffer)[]) {
+    return this.redisClient.hdel(key, ...fields);
+  }
+
+  public hget(key: RedisKey, field: string | Buffer) {
+    return this.redisClient.hget(key, field);
+  }
+
+  public hgetAll(key: RedisKey) {
+    return this.redisClient.hgetall(key);
+  }
+
+  public expire(key: RedisKey, seconds: number) {
+    return this.redisClient.expire(key, seconds);
   }
 }
