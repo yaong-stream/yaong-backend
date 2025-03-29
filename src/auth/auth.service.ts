@@ -45,6 +45,7 @@ export class AuthService {
     const payload = {
       sub: member.id,
       nickname: member.nickname,
+      profileImage: member.profileImage,
       deviceId,
     };
     const signOptions: JwtSignOptions = {

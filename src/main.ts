@@ -26,7 +26,13 @@ import {
 } from './app.module';
 import {
   GlobalExceptionFilter,
-} from './exception/global-exceptio-filter';
+} from './exception/global-exception-filter';
+import {
+  ChatRedisAdapter,
+} from './chat/chat.redis-adapter';
+import {
+  RedisService,
+} from './redis/redis.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -54,6 +60,13 @@ async function bootstrap() {
     .use(helmet())
     .useGlobalPipes(new ValidationPipe(validationOptiions))
     .useGlobalFilters(new GlobalExceptionFilter());
+
+  const redisService = app.get(RedisService);
+  const redisIOAdapter = new ChatRedisAdapter(app);
+  await redisIOAdapter.connectToRedis(redisService.getClient());
+  app
+    .useWebSocketAdapter(redisIOAdapter);
+
   if (!isProduction) {
     const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'));
     const swaggerConfig = new DocumentBuilder()

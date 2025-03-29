@@ -12,6 +12,9 @@ import {
 import {
   PostgresDataSource,
 } from './configure/database';
+import {
+  ChatModule,
+} from './chat/chat.module';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import {
     Redis,
     Routes,
     ...RegisteredModules,
+    ChatModule,
   ],
 })
 export class AppModule { }
