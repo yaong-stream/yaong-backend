@@ -44,7 +44,19 @@ const CACHE_TTL = 3600;
 @UseFilters(SocketExceptionFilter)
 @UsePipes(new ValidationPipe({ exceptionFactory: (error) => new WsException(error) }))
 @WebSocketGateway({
-  cors: true,
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin || process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      if (/^(https?:\/\/)?(([\w\d-\.]*)?\.)?narumir.io/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
   transports: ['websocket'],
   namespace: 'chat',
 })

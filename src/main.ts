@@ -61,6 +61,21 @@ async function bootstrap() {
     .useGlobalPipes(new ValidationPipe(validationOptiions))
     .useGlobalFilters(new GlobalExceptionFilter());
 
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || !configService.get<boolean>('isProduction')) {
+        return callback(null, true);
+      }
+      if (/^(https?:\/\/)?(([\w\d-\.]*)?\.)?narumir.io/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+    optionsSuccessStatus: 204,
+  });
+
   const redisService = app.get(RedisService);
   const redisIOAdapter = new ChatRedisAdapter(app);
   await redisIOAdapter.connectToRedis(redisService.getClient());
@@ -79,5 +94,6 @@ async function bootstrap() {
     SwaggerModule.setup('/api', app, documentFactory);
   }
   await app.listen(port);
+  console.log(port);
 }
 bootstrap();

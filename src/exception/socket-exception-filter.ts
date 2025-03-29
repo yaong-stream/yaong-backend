@@ -30,7 +30,6 @@ export class SocketExceptionFilter implements ExceptionFilter {
       detail: JSON.stringify(error),
       timestamp: new Date().toISOString(),
     };
-    console.log(error);
     if (Array.isArray(error)) {
       error.forEach((err) => {
         if (err instanceof ValidationError) {
