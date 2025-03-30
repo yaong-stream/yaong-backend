@@ -22,7 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
-  AuthGuard,
+  MemberGuard,
   MemberAuth,
 } from 'src/auth/auth.guard';
 import {
@@ -71,7 +71,7 @@ export class StreamController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post('enable')
   public async enableStream(
@@ -113,7 +113,7 @@ export class StreamController {
     type: StreamDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch()
   public async updateStreamInfo(
@@ -154,7 +154,7 @@ export class StreamController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('disable')
   public async disableStream(

@@ -13,7 +13,7 @@ import type {
 } from 'express';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class MemberGuard implements CanActivate {
 
   constructor(
     private readonly jwtService: JwtService,

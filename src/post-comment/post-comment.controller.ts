@@ -24,7 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
-  AuthGuard,
+  MemberGuard,
   MemberAuth,
 } from 'src/auth/auth.guard';
 import {
@@ -67,7 +67,7 @@ export class PostCommentController {
     type: PostCommentDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':post_id')
   public async createComment(
@@ -99,7 +99,7 @@ export class PostCommentController {
     example: 1,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':comment_id/replies')
   public async createCommentReply(
@@ -218,7 +218,7 @@ export class PostCommentController {
     type: PostCommentDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':comment_id')
   public async updateComment(
@@ -269,7 +269,7 @@ export class PostCommentController {
     type: PostReplyDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':comment_id/replies/:reply_id')
   public async updateCommentReply(
@@ -323,7 +323,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':comment_id')
   public async deleteComment(
@@ -365,7 +365,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':comment_id/like')
   public async likePost(
@@ -416,7 +416,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':comment_id/like')
   public async unlikePost(
