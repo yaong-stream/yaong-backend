@@ -17,6 +17,8 @@ const socket = io('/chat', {
 });
 ```
 
+혹은, Cookie 기반 인증이 되어 있어야 합니다.
+
 ## 송신 이벤트
 
 ### 채팅방 입장 (chat-join)
