@@ -12,6 +12,9 @@ import {
 import {
   Socket,
 } from 'socket.io';
+import type {
+  Request,
+} from 'express';
 
 @Injectable()
 export class ChatGuard implements CanActivate {
@@ -23,6 +26,10 @@ export class ChatGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const client = context.switchToWs().getClient<Socket>();
     const authorization = client.handshake.headers.authorization;
+    if (authorization == null) {
+      const request = context.switchToHttp().getRequest<Request>();
+      return request.isAuthenticated();
+    }
     if (!authorization?.toLowerCase().startsWith('bearer ')) {
       throw new WsException('Missing authorization token.');
     }

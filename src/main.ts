@@ -72,15 +72,18 @@ async function bootstrap() {
     .use(cookieParser())
     .use(helmet())
     .use(session({
+      name: 'session-id',
       store: redisStore,
       resave: false,
       saveUninitialized: false,
-      secret: 'asdfasdfasdfasd',
+      secret: configService.getOrThrow('sessionSecret'),
       rolling: true,
       cookie: {
         maxAge: 3600000, // 60 * 60 * 1000, 1 hours
         httpOnly: true,
         secure: isProduction,
+        domain: '.narumir.io',
+        sameSite: 'lax',
       },
     }))
     .use(passport.initialize())
@@ -110,7 +113,7 @@ async function bootstrap() {
       .setDescription('Yaong API Document')
       .setVersion(pkg.version)
       .addBearerAuth()
-      .addCookieAuth('connect.sid')
+      .addCookieAuth('session-id')
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('/api', app, documentFactory);
