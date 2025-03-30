@@ -44,7 +44,7 @@ import {
   ActiveSessionsDto,
 } from './dto/response';
 import {
-  AuthGuard,
+  MemberGuard,
   DeviceId,
   MemberAuth,
 } from './auth.guard';
@@ -244,7 +244,7 @@ export class AuthController {
     description: '활성 세션 목록',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @Get('sessions')
   public async getActiveSessions(
     @MemberAuth() memberId: number,
@@ -270,7 +270,7 @@ export class AuthController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @Post('logout/other')
   public async logoutOtherDevices(
     @MemberAuth() memberId: number,
@@ -300,7 +300,7 @@ export class AuthController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @Post('logout')
   public async logout(
     @MemberAuth() memberId: number,

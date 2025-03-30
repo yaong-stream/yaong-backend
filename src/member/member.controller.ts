@@ -22,7 +22,7 @@ import {
   RedisService,
 } from 'src/redis/redis.service';
 import {
-  AuthGuard,
+  MemberGuard,
   MemberAuth,
 } from 'src/auth/auth.guard';
 import {
@@ -108,7 +108,7 @@ export class MemberController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @Post('withdraw')
   public async withdraw(
     @MemberAuth() memberId: number,

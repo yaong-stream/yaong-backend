@@ -24,7 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
-  AuthGuard,
+  MemberGuard,
   MemberAuth,
 } from 'src/auth/auth.guard';
 import {
@@ -59,7 +59,7 @@ export class PostController {
     type: PostDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post()
   public async createPost(
@@ -165,7 +165,7 @@ export class PostController {
     type: PostDto,
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':post_id')
   public async updatePost(
@@ -213,7 +213,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':post_id')
   public async deletePost(
@@ -249,7 +249,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':post_id/like')
   public async likePost(
@@ -293,7 +293,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':post_id/like')
   public async unlikePost(
