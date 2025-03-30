@@ -16,7 +16,7 @@ import {
 })
 export class StreamHistory extends DefaultEntity {
 
-  @ManyToOne(() => Stream, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => Stream, (stream) => stream.histories, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'stream_id',
   })

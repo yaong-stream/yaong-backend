@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   Unique,
 } from 'typeorm';
@@ -15,6 +16,7 @@ import {
 import {
   Category,
 } from './category';
+import { StreamHistory } from './stream-history';
 
 @Unique([
   'member',
@@ -59,4 +61,7 @@ export class Stream extends DefaultEntity {
     name: 'category_id',
   })
   category: Category;
+
+  @OneToMany(() => StreamHistory, (history) => history.stream)
+  histories: StreamHistory[];
 }
