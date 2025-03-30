@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -59,6 +60,7 @@ export class PostController {
     type: PostDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post()
@@ -165,6 +167,7 @@ export class PostController {
     type: PostDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':post_id')
@@ -213,6 +216,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':post_id')
@@ -249,6 +253,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':post_id/like')
@@ -293,6 +298,7 @@ export class PostController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':post_id/like')

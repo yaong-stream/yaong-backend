@@ -1,4 +1,6 @@
 import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
+import * as  passport from 'passport';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import helmet from 'helmet';
@@ -21,6 +23,9 @@ import {
 import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
+import {
+  RedisStore,
+} from 'connect-redis';
 import {
   AppModule,
 } from './app.module';
@@ -51,6 +56,14 @@ async function bootstrap() {
       })));
     },
   };
+
+  const redisService = app.get(RedisService);
+  const redisIOAdapter = new ChatRedisAdapter(app);
+  await redisIOAdapter.connectToRedis(redisService.getClient());
+  app
+    .useWebSocketAdapter(redisIOAdapter);
+
+  const redisStore = new RedisStore({ client: redisService.getClient() });
   app
     .set('query parser', 'extended')
     .set('trust proxy', true);
@@ -58,6 +71,20 @@ async function bootstrap() {
     .enableShutdownHooks()
     .use(cookieParser())
     .use(helmet())
+    .use(session({
+      store: redisStore,
+      resave: false,
+      saveUninitialized: false,
+      secret: 'asdfasdfasdfasd',
+      rolling: true,
+      cookie: {
+        maxAge: 3600000, // 60 * 60 * 1000, 1 hours
+        httpOnly: true,
+        secure: isProduction,
+      },
+    }))
+    .use(passport.initialize())
+    .use(passport.session())
     .useGlobalPipes(new ValidationPipe(validationOptiions))
     .useGlobalFilters(new GlobalExceptionFilter());
 
@@ -76,12 +103,6 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  const redisService = app.get(RedisService);
-  const redisIOAdapter = new ChatRedisAdapter(app);
-  await redisIOAdapter.connectToRedis(redisService.getClient());
-  app
-    .useWebSocketAdapter(redisIOAdapter);
-
   if (!isProduction) {
     const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'));
     const swaggerConfig = new DocumentBuilder()
@@ -89,6 +110,7 @@ async function bootstrap() {
       .setDescription('Yaong API Document')
       .setVersion(pkg.version)
       .addBearerAuth()
+      .addCookieAuth('connect.sid')
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('/api', app, documentFactory);

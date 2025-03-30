@@ -1,3 +1,4 @@
+import * as passport from 'passport';
 import {
   Module,
 } from '@nestjs/common';
@@ -22,12 +23,20 @@ import {
 import {
   AuthJwt,
 } from './auth.jwt';
+import {
+  AuthLocalStrategy,
+} from './auth.local-strategy';
+import {
+  PassportModule,
+} from '@nestjs/passport';
+import { AuthSerializer } from './auth.serializer';
 
 @Module({
   imports: [
     AuthJwt,
     MemberModule,
     ArgonModule,
+    PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([LoginHistory]),
   ],
   controllers: [
@@ -35,6 +44,8 @@ import {
   ],
   providers: [
     AuthService,
+    AuthLocalStrategy,
+    AuthSerializer,
   ],
 })
 export class AuthModule { }

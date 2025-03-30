@@ -22,7 +22,11 @@ export class MemberGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
     const authorization = req.headers.authorization;
-    if (!authorization?.toLowerCase().startsWith('bearer ')) {
+    if (authorization == null) {
+      const request = context.switchToHttp().getRequest<Request>();
+      return request.isAuthenticated();
+    }
+    if (!authorization.toLowerCase().startsWith('bearer ')) {
       throw new UnauthorizedException('Missing authorization token.');
     }
     try {
@@ -43,6 +47,9 @@ export class MemberGuard implements CanActivate {
 export const MemberAuth = createParamDecorator((_: unknown, context: ExecutionContext) => {
   const ctx = context.switchToHttp();
   const req = ctx.getRequest<Request>();
+  if (req.user != null) {
+    return req.user['id'];
+  }
   return req["sub"];
 });
 
