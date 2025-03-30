@@ -16,6 +16,9 @@ import {
 import {
   PostCommentModule,
 } from './post-comment/post-comment.module';
+import {
+  StreamModule,
+} from './stream/stream.module';
 
 export const Routes = RouterModule.register([
   {
@@ -46,6 +49,10 @@ export const Routes = RouterModule.register([
               }
             ],
           },
+          {
+            path: 'streams',
+            module: StreamModule,
+          },
         ],
       },
     ],
@@ -58,4 +65,5 @@ export const RegisteredModules = [
   MemberModule,
   PostModule,
   PostCommentModule,
+  StreamModule,
 ];
