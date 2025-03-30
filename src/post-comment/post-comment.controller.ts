@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -67,6 +68,7 @@ export class PostCommentController {
     type: PostCommentDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':post_id')
@@ -99,6 +101,7 @@ export class PostCommentController {
     example: 1,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':comment_id/replies')
@@ -218,6 +221,7 @@ export class PostCommentController {
     type: PostCommentDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':comment_id')
@@ -269,6 +273,7 @@ export class PostCommentController {
     type: PostReplyDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':comment_id/replies/:reply_id')
@@ -323,6 +328,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':comment_id')
@@ -365,6 +371,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post(':comment_id/like')
@@ -416,6 +423,7 @@ export class PostCommentController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':comment_id/like')

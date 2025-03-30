@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -71,6 +72,7 @@ export class StreamController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Post('enable')
@@ -113,6 +115,7 @@ export class StreamController {
     type: StreamDto,
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Patch()
@@ -154,6 +157,7 @@ export class StreamController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('disable')

@@ -19,6 +19,7 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiBearerAuth,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import type {
   Request,
@@ -48,6 +49,9 @@ import {
   DeviceId,
   MemberAuth,
 } from './auth.guard';
+import {
+  AuthLocalSignupGuard,
+} from './auth.local-signin-guard';
 
 @ApiTags('Auth')
 @Controller()
@@ -107,11 +111,13 @@ export class AuthController {
     } else {
       throw new BadRequestException('Invalid verification code.');
     }
-    return { success: isValidCode };
+    return {
+      success: isValidCode,
+    };
   }
 
   @ApiOperation({
-    summary: '로그인',
+    summary: '로그인 (token)',
     description: '이메일과 비밀번호를 사용하여 로그인합니다. 인증된 사용자만 로그인이 가능합니다.'
   })
   @ApiBody({
@@ -131,14 +137,14 @@ export class AuthController {
   ) {
     const member = await this.memberService.getMemberCredentialByEmail(body.email);
     if (member == null) {
-      throw new BadRequestException('Invalid email or password.');
+      throw new UnauthorizedException('Invalid email or password.');
     }
     if (!member.isEmailVerified) {
-      throw new BadRequestException('Email not verified.');
+      throw new UnauthorizedException('Email not verified.');
     }
     const isPasswordValid = await this.argonService.verifyPassword(member.credential.password, body.password);
     if (!isPasswordValid) {
-      throw new BadRequestException('Invalid email or password.');
+      throw new UnauthorizedException('Invalid email or password.');
     }
 
     // 로그인 기록 저장
@@ -159,7 +165,67 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '액세스 토큰 재발급',
+    summary: '로그인 (session)',
+    description: '이메일과 비밀번호를 사용하여 로그인합니다. 인증된 사용자만 로그인이 가능합니다.'
+  })
+  @ApiBody({
+    type: LoginDto,
+    description: '로그인 정보',
+    required: true,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          example: 'user@example.com',
+        },
+        password: {
+          type: 'string',
+          example: 'p@sswOrd123!',
+        },
+      },
+    },
+  })
+  @UseGuards(AuthLocalSignupGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('signin')
+  public signin(@Req() req: Request) {
+    return req.user;
+  }
+
+  @ApiOperation({
+    summary: '로그아웃 (session)',
+    description: '현재 기기에서 로그아웃합니다.'
+  })
+  @ApiOkResponse({
+    description: '로그아웃 성공 여부',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @Post('signout')
+  public signout(
+    @Req() req: Request,
+  ) {
+    return new Promise((resolve, reject) => {
+      req.logOut({ keepSessionInfo: false }, (err) => {
+        return err ? reject(err) : resolve({ success: true });
+      });
+    });
+  }
+
+  @ApiOperation({
+    summary: '액세스 토큰 재발급 (token)',
     description: '리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.'
   })
   @ApiBody({
@@ -196,7 +262,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '리프레시 토큰 재발급',
+    summary: '리프레시 토큰 재발급 (token)',
     description: '기존 리프레시 토큰을 사용하여 새로운 리프레시 토큰을 발급받습니다.'
   })
   @ApiBody({
@@ -213,7 +279,7 @@ export class AuthController {
   public async reissueRefreshTokens(
     @Body() body: RefreshTokenDto,
   ) {
-    const payload = await this.authService.verifyRefreshToken(body.refreshToken);
+    const payload = this.authService.verifyRefreshToken(body.refreshToken);
     if (payload.sub == null || payload["deviceId"] == null) {
       throw new UnauthorizedException('Invalid token payload.');
     }
@@ -236,7 +302,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '활성 세션 조회',
+    summary: '활성 세션 조회 (token)',
     description: '현재 로그인된 모든 기기의 세션 정보를 조회합니다.'
   })
   @ApiOkResponse({
@@ -254,7 +320,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '다른 기기 로그아웃',
+    summary: '다른 기기 로그아웃 (token)',
     description: '현재 기기를 제외한 다른 기기에서 로그아웃합니다.'
   })
   @ApiOkResponse({
@@ -284,7 +350,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '로그아웃',
+    summary: '로그아웃 (token)',
     description: '현재 기기에서 로그아웃합니다.'
   })
   @ApiOkResponse({

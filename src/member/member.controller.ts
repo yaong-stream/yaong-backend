@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
@@ -108,6 +109,7 @@ export class MemberController {
     },
   })
   @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @Post('withdraw')
   public async withdraw(
