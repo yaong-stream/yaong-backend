@@ -3,12 +3,14 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Header,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  Param,
   Patch,
   Post,
   UnauthorizedException,
@@ -223,8 +225,39 @@ export class StreamController {
       inputType,
       reason,
     ] = body.split(/\r\n|\r|\n/);
-    console.log(streamName);
     await this.streamService.endStreamHistory(streamName);
     return 'true';
+  }
+
+  @ApiOperation({
+    summary: '생방송 정보 목록',
+    description: '생방송 중인 스트리머의 방송 정보를 가져옵니다.',
+  })
+  @ApiOkResponse({
+    type: [StreamDto],
+    description: '방송 정보',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  public async getLiveStreams() {
+    const streams = await this.streamService.getLiveStreams();
+    return streams.map((stream) => StreamDto.from(stream));
+  }
+
+  @ApiOperation({
+    summary: '방송 정보',
+    description: '스트리머의 방송 정보를 가져옵니다.',
+  })
+  @ApiOkResponse({
+    type: StreamDto,
+    description: '방송 정보',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get(':streamer_name')
+  public async getStream(
+    @Param('streamer_name') streamerName: string,
+  ) {
+    const stream = await this.streamService.getStreamByStreamerName(streamerName);
+    return StreamDto.from(stream);
   }
 }

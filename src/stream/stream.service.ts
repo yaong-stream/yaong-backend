@@ -5,13 +5,18 @@ import {
   InjectRepository,
 } from '@nestjs/typeorm';
 import {
+  In,
   IsNull,
   Repository,
 } from 'typeorm';
 import {
+  Member,
   Stream,
   StreamHistory,
 } from 'src/entities';
+import {
+  Streaming,
+} from './stream.interface';
 
 @Injectable()
 export class StreamService {
@@ -28,7 +33,7 @@ export class StreamService {
       name: `${nickname}님의 방송입니다.`,
       description: `${nickname}님의 방송에 오신것을 환영합니다.`,
       streamKey: streamKey,
-      member: {
+      streamer: {
         id: memberId,
       },
     });
@@ -37,23 +42,35 @@ export class StreamService {
 
   public deactivateStream(memberId: number) {
     return this.streamRepository.delete({
-      member: {
+      streamer: {
         id: memberId,
       },
     });
   }
 
-  public getStreamByMemberId(memberId: number) {
-    return this.streamRepository.findOne({
-      where: {
-        member: {
-          id: memberId,
-        },
+  public async getStreamByMemberId(memberId: number) {
+    const stream = await this.streamRepository
+      .createQueryBuilder('stream')
+      .addSelect((qb) => qb
+        .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
+        .from(StreamHistory, 'history')
+        .where('history.stream_id = stream.id'), 'is_live')
+      .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
+      .where('member.id = :memberId', { memberId })
+      .getRawOne();
+    return {
+      id: stream.stream_id,
+      name: stream.stream_name,
+      description: stream.stream_description,
+      thumbnailImage: stream.stream_thumbnail_image,
+      streamKey: stream.stream_stream_key,
+      isLive: stream.is_live,
+      streamer: {
+        id: stream.member_id,
+        nickname: stream.member_nickname,
+        profileImage: stream.member_profile_image,
       },
-      relations: [
-        'member',
-      ],
-    });
+    } as Streaming;
   }
 
   public updateStream(streamId: number, name: string, description: string) {
@@ -72,6 +89,62 @@ export class StreamService {
     return this.streamRepository.findOneBy({
       streamKey,
     });
+  }
+
+  public async getStreamByStreamerName(streamerName: string) {
+    const stream = await this.streamRepository
+      .createQueryBuilder('stream')
+      .addSelect((qb) => qb
+        .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
+        .from(StreamHistory, 'history')
+        .where('history.stream_id = stream.id AND history.ended_at IS NULL'), 'is_live')
+      .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
+      .where('member.nickname = :streamerName', { streamerName })
+      .getRawOne();
+    return {
+      id: stream.stream_id,
+      name: stream.stream_name,
+      description: stream.stream_description,
+      thumbnailImage: stream.stream_thumbnail_image,
+      streamKey: stream.stream_stream_key,
+      isLive: stream.is_live,
+      streamer: {
+        id: stream.member_id,
+        nickname: stream.member_nickname,
+        profileImage: stream.member_profile_image,
+      },
+    } as Streaming;
+  }
+
+  public async getLiveStreams() {
+    const histories = await this.streamHistoryRepoditory
+      .createQueryBuilder('history')
+      .select('DISTINCT history.stream_id', 'stream_id')
+      .where('history.ended_at IS NULL')
+      .getRawMany();
+    const liveIds = histories.map((history) => history.stream_id) as number[];
+    const liveStreams = await this.streamRepository
+      .createQueryBuilder('stream')
+      .addSelect((qb) => qb
+        .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
+        .from(StreamHistory, 'history')
+        .where('history.stream_id = stream.id AND history.ended_at IS NULL'), 'is_live')
+      .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
+      .where('stream.id IN(:...liveIds)', { liveIds })
+      .getRawMany();
+    return liveStreams.map((stream) => ({
+      id: stream.stream_id,
+      name: stream.stream_name,
+      description: stream.stream_description,
+      thumbnailImage: stream.stream_thumbnail_image,
+      streamKey: stream.stream_stream_key,
+      isLive: stream.is_live,
+      streamer: {
+        id: stream.member_id,
+        nickname: stream.member_nickname,
+        profileImage: stream.member_profile_image,
+      },
+    } as Streaming));
   }
 
   public createStreamHistory(stream: Stream) {

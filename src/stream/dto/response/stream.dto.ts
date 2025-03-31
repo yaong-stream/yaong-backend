@@ -2,11 +2,11 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import {
-  Stream,
-} from 'src/entities';
-import {
   MemberDto,
 } from 'src/member/dto/response';
+import {
+  Streaming,
+} from 'src/stream/stream.interface';
 
 export class StreamDto {
 
@@ -38,19 +38,29 @@ export class StreamDto {
   thumbnailImage: string;
 
   @ApiProperty({
+    description: '생방송 여부',
+    example: true,
+    required: true,
+    type: Boolean,
+    nullable: false,
+  })
+  isLive: boolean;
+
+  @ApiProperty({
     description: '게시글 작성자',
     required: true,
     type: MemberDto,
     nullable: false,
   })
-  member: MemberDto;
+  streamer: MemberDto;
 
-  public static from(stream: Stream) {
+  public static from(stream: Streaming) {
     const dto = new StreamDto();
     dto.name = stream.name;
     dto.description = stream.description;
     dto.thumbnailImage = stream.thumbnailImage;
-    dto.member = MemberDto.from(stream.member.id, stream.member.nickname, stream.member.profileImage);
+    dto.isLive = stream.isLive;
+    dto.streamer = MemberDto.from(stream.streamer.id, stream.streamer.nickname, stream.streamer.profileImage);
     return dto;
   }
 }
