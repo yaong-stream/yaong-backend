@@ -177,7 +177,7 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        username: {
+        email: {
           type: 'string',
           example: 'user@example.com',
         },

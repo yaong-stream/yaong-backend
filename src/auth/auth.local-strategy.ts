@@ -28,7 +28,9 @@ export class AuthLocalStrategy extends PassportStrategy(Strategy, 'local') {
     private readonly memberService: MemberService,
     private readonly argonService: ArgonService,
   ) {
-    super();
+    super({
+      usernameField: 'email',
+    });
   }
 
   async validate(email: string, password: string): Promise<any> {
