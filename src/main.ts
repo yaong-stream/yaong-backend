@@ -81,10 +81,10 @@ async function bootstrap() {
       secret: configService.getOrThrow('sessionSecret'),
       rolling: true,
       cookie: {
-        maxAge: 3600000, // 60 * 60 * 1000, 1 hours
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
         httpOnly: true,
         secure: isProduction,
-        domain: '.narumir.io',
+        domain: isProduction ? '.narumir.io' : undefined,
         sameSite: 'lax',
       },
     }))
@@ -122,4 +122,5 @@ async function bootstrap() {
   }
   await app.listen(port);
 }
+
 bootstrap();

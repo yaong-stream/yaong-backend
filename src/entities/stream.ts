@@ -21,7 +21,7 @@ import {
 } from './stream-history';
 
 @Unique([
-  'member',
+  'streamer',
 ])
 @Entity({
   name: 'streams',
@@ -64,7 +64,7 @@ export class Stream extends DefaultEntity {
   @JoinColumn({
     name: 'member_id',
   })
-  member: Member;
+  streamer: Member;
 
   @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({
