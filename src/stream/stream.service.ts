@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import {
   Stream,
+  StreamHistory,
 } from 'src/entities';
 
 @Injectable()
@@ -18,12 +19,15 @@ export class StreamService {
   constructor(
     @InjectRepository(Stream)
     private readonly streamRepository: Repository<Stream>,
+    @InjectRepository(StreamHistory)
+    private readonly streamHistoryRepoditory: Repository<StreamHistory>,
   ) { }
 
-  public activateStream(memberId: number, nickname: string) {
+  public activateStream(memberId: number, nickname: string, streamKey: string) {
     const stream = this.streamRepository.create({
       name: `${nickname}님의 방송입니다.`,
       description: `${nickname}님의 방송에 오신것을 환영합니다.`,
+      streamKey: streamKey,
       member: {
         id: memberId,
       },
@@ -36,27 +40,6 @@ export class StreamService {
       member: {
         id: memberId,
       },
-    });
-  }
-
-  public getStreams(lastId?: number, limit: number = 20,) {
-    this.streamRepository.find({
-
-      where: {
-        histories: {
-          endedAt: IsNull(),
-        },
-      },
-      relations: [
-        'histories',
-        'member',
-      ],
-      order: {
-        histories: {
-          createdAt: 'ASC',
-        },
-      },
-      take: limit,
     });
   }
 
@@ -83,5 +66,33 @@ export class StreamService {
         description,
       },
     );
+  }
+
+  public getStreamByStreamKey(streamKey: string) {
+    return this.streamRepository.findOneBy({
+      streamKey,
+    });
+  }
+
+  public createStreamHistory(stream: Stream) {
+    const history = this.streamHistoryRepoditory.create({
+      stream,
+    });
+    return this.streamHistoryRepoditory.save(history);
+  }
+
+  public async endStreamHistory(streamKey: string) {
+    const streams = await this.streamHistoryRepoditory.find({
+      where: {
+        stream: {
+          streamKey,
+        },
+        endedAt: IsNull(),
+      },
+    });
+    return this.streamHistoryRepoditory.save(streams.map((stream) => {
+      stream.endedAt = new Date();
+      return stream;
+    }))
   }
 }

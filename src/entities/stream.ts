@@ -16,7 +16,9 @@ import {
 import {
   Category,
 } from './category';
-import { StreamHistory } from './stream-history';
+import {
+  StreamHistory,
+} from './stream-history';
 
 @Unique([
   'member',
@@ -49,6 +51,14 @@ export class Stream extends DefaultEntity {
     default: '',
   })
   thumbnailImage: string;
+
+  @Column({
+    type: 'char',
+    name: 'stream_key',
+    nullable: false,
+    length: 32,
+  })
+  streamKey: string;
 
   @OneToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({
