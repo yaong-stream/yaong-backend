@@ -2,6 +2,7 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
+  Logger,
 } from '@nestjs/common';
 import {
   WsException,
@@ -22,6 +23,9 @@ type ErrorResponse = {
 
 @Catch(WsException)
 export class SocketExceptionFilter implements ExceptionFilter {
+
+  private readonly logger = new Logger(SocketExceptionFilter.name);
+
   catch(exception: WsException, host: ArgumentsHost) {
     const client = host.switchToWs().getClient<Socket>();
     const error = exception.getError();

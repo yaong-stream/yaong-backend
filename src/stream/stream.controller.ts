@@ -1,16 +1,16 @@
 import {
-  All,
   BadRequestException,
   Body,
   Controller,
   Delete,
-  Get,
+  Header,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   Logger,
+  NotFoundException,
   Patch,
   Post,
-  Req,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +22,9 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import {
+  v4 as uuidv4,
+} from 'uuid';
 import {
   MemberGuard,
   MemberAuth,
@@ -38,9 +41,9 @@ import {
 import {
   StreamDto,
 } from './dto/response';
-import type {
-  Request,
-} from 'express';
+import {
+  MistService,
+} from './mist.service';
 
 @ApiTags('Stream')
 @Controller()
@@ -51,6 +54,7 @@ export class StreamController {
   constructor(
     private readonly streamService: StreamService,
     private readonly memberService: MemberService,
+    private readonly mistService: MistService,
   ) { }
 
   @ApiOperation({
@@ -84,7 +88,16 @@ export class StreamController {
       if (member == null) {
         throw new UnauthorizedException('Member Not Found');
       }
-      const stream = await this.streamService.activateStream(member.id, member.nickname);
+      const generatedKey = uuidv4().replace(/-/g, '');;
+      const auth = await this.mistService.authenticate();
+      if (!auth) {
+        throw new InternalServerErrorException('Fail to Authrization on mist server.');
+      }
+      const isCreatedStream = await this.mistService.createStream(generatedKey);
+      if (!isCreatedStream) {
+        throw new InternalServerErrorException('Fail to create stream on mist server.');
+      }
+      const stream = await this.streamService.activateStream(member.id, member.nickname, generatedKey);
       return {
         success: stream != null,
       };
@@ -95,10 +108,6 @@ export class StreamController {
         success: false,
       };
     }
-  }
-
-  public getStreams() {
-
   }
 
   @ApiOperation({
@@ -170,29 +179,52 @@ export class StreamController {
     };
   }
 
+  /**
+   * 
+   * @param body 
+   * stream name (string)
+   * connection address (string)
+   * connector (string)
+   * request url (string)
+   * 
+   */
   @Post('trigger/start-stream')
-  public startStreamTrigger(
-    @Req() req: Request,
-    @Body() payload: any,
+  public async startStreamTrigger(
+    @Body() body: string,
   ) {
-    console.log(payload);
-    console.log('start');
-    console.log(req.method);
-    console.log(req.params);
-    console.log(req.query);
-    console.log(req.body);
-    return true;
+    const [
+      streamName,
+      connectionAddress,
+      connector,
+      requestUrl,
+    ] = body.split(/\r\n|\r|\n/);
+    const stream = await this.streamService.getStreamByStreamKey(streamName);
+    if (stream == null) {
+      throw new NotFoundException('Stream not found.');
+    }
+    await this.streamService.createStreamHistory(stream);
+    return 'true';
   }
 
-
+  /**
+   * stream name (string)
+   * input type (string)
+   * 9d91ddf5472d4d81a9accd5fbc528aa1
+   * Buffer
+   * uncancelablesource disconnected for non-resumable stream
+   */
+  @Header('Content-Type', 'text/plain')
   @Post('trigger/end-stream')
-  public endStreamTrigger(
-    @Req() req: Request,
+  public async endStreamTrigger(
+    @Body() body: string,
   ) {
-    console.log('end');
-    console.log(req.method)
-    console.log(req.query);
-    console.log(req.body);
-    return true;
+    const [
+      streamName,
+      inputType,
+      reason,
+    ] = body.split(/\r\n|\r|\n/);
+    console.log(streamName);
+    await this.streamService.endStreamHistory(streamName);
+    return 'true';
   }
 }

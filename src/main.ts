@@ -1,6 +1,7 @@
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as  passport from 'passport';
+import * as bodyParser from 'body-parser';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import helmet from 'helmet';
@@ -71,6 +72,7 @@ async function bootstrap() {
     .enableShutdownHooks()
     .use(cookieParser())
     .use(helmet())
+    .use(bodyParser.text({ type: 'text/plain' }))
     .use(session({
       name: 'session-id',
       store: redisStore,
