@@ -6,7 +6,7 @@
 - NameSpace: /chat
 
 ### 인증
-모든 채팅 관련 이벤트는 JWT 토큰 기반 인증이 필요합니다. 연결 시 다음과 같이 헤더에 인증 토큰을 포함해야 합니다:
+채팅 발신 이벤트는 JWT 토큰 기반 인증이 필요합니다. 연결 시 다음과 같이 헤더에 인증 토큰을 포함해야 합니다:
 
 ```javascript
 const socket = io('/chat', {
@@ -33,7 +33,7 @@ socket.emit('chat-join', {
 필수 파라미터:
 - streamId: 숫자 타입, 입장할 스트리밍 채널의 ID
 
-### 메시지 전송 (chat-message)
+### 메시지 전송 (chat-message, auth required)
 채팅 메시지를 전송할 때 사용합니다.
 
 ```javascript
