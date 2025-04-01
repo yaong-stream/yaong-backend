@@ -11,6 +11,15 @@ import {
 export class StreamDto {
 
   @ApiProperty({
+    description: '스트림 id',
+    example: 1,
+    required: true,
+    type: Number,
+    nullable: false,
+  })
+  id: number;
+
+  @ApiProperty({
     description: '방송 제목',
     example: 'XXX님의 방송입니다.',
     required: true,
@@ -56,6 +65,7 @@ export class StreamDto {
 
   public static from(stream: Streaming) {
     const dto = new StreamDto();
+    dto.id = stream.id;
     dto.name = stream.name;
     dto.description = stream.description;
     dto.thumbnailImage = stream.thumbnailImage;
