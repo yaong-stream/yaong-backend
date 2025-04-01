@@ -56,6 +56,15 @@ export class StreamDto {
   isLive: boolean;
 
   @ApiProperty({
+    description: '방송 스트림키',
+    example: '39ec2d91fd1d4b51b81438a2147156e4',
+    required: true,
+    type: String,
+    nullable: false,
+  })
+  streamKey: string;
+
+  @ApiProperty({
     description: '게시글 작성자',
     required: true,
     type: MemberDto,
@@ -70,6 +79,7 @@ export class StreamDto {
     dto.description = stream.description;
     dto.thumbnailImage = stream.thumbnailImage;
     dto.isLive = stream.isLive;
+    dto.streamKey = stream.streamKey;
     dto.streamer = MemberDto.from(stream.streamer.id, stream.streamer.nickname, stream.streamer.profileImage);
     return dto;
   }
