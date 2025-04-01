@@ -101,6 +101,9 @@ export class StreamService {
       .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
       .where('member.nickname = :streamerName', { streamerName })
       .getRawOne();
+    if (stream == null) {
+      return;
+    }
     return {
       id: stream.stream_id,
       name: stream.stream_name,

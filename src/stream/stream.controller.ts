@@ -258,6 +258,9 @@ export class StreamController {
     @Param('streamer_name') streamerName: string,
   ) {
     const stream = await this.streamService.getStreamByStreamerName(streamerName);
+    if (stream == null) {
+      throw new NotFoundException('Streamer not found.');
+    }
     return StreamDto.from(stream);
   }
 }
