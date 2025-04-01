@@ -47,6 +47,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.getOrThrow<number>('port');
   const isProduction = configService.getOrThrow<boolean>('isProduction');
+  const enableSwagger = configService.getOrThrow<boolean>('enableSwagger');
   const validationOptiions: ValidationPipeOptions = {
     whitelist: true,
     transform: true,
@@ -95,7 +96,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || !configService.get<boolean>('isProduction')) {
+      if (!origin || !isProduction) {
         return callback(null, true);
       }
       if (/^(https?:\/\/)?(([\w\d-\.]*)?\.)?narumir.io/.test(origin)) {
@@ -108,7 +109,7 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  if (!isProduction) {
+  if (!isProduction || enableSwagger) {
     const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'));
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Yaong')

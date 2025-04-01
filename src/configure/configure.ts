@@ -5,6 +5,7 @@ import {
 const env = () => ({
   port: parseInt(process.env.PORT || '4000', 10),
   isProduction: process.env.NODE_ENV === 'production',
+  enableSwagger: process.env.ENABLE_SWAGGER === 'true',
   authSecret: process.env.AUTH_SECRET,
   sessionSecret: process.env.SESSION_SECRET,
   domain: process.env.DOMAIN || 'http://localhost:4000',
