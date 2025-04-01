@@ -81,7 +81,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.leaveAllChatRooms(client);
   }
 
-  @UseGuards(ChatGuard)
   @SubscribeMessage('chat-join')
   handleChatJoin(client: Socket, payload: ChatJoinRoom) {
     this.leaveAllChatRooms(client);
