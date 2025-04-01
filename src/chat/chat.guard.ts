@@ -27,7 +27,7 @@ export class ChatGuard implements CanActivate {
     const client = context.switchToWs().getClient<Socket>();
     const authorization = client.handshake.headers.authorization;
     if (authorization == null) {
-      const request = context.switchToHttp().getRequest<Request>();
+      const request = client.request as Request;
       return request.isAuthenticated();
     }
     if (!authorization?.toLowerCase().startsWith('bearer ')) {

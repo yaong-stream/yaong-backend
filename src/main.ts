@@ -60,39 +60,40 @@ async function bootstrap() {
   };
 
   const redisService = app.get(RedisService);
-  const redisIOAdapter = new ChatRedisAdapter(app);
-  await redisIOAdapter.connectToRedis(redisService.getClient());
-  app
-    .useWebSocketAdapter(redisIOAdapter);
-
   const redisStore = new RedisStore({ client: redisService.getClient() });
+  const sessionMiddleware = session({
+    name: 'session-id',
+    store: redisStore,
+    resave: false,
+    saveUninitialized: false,
+    secret: configService.getOrThrow('sessionSecret'),
+    rolling: true,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      secure: isProduction,
+      domain: isProduction ? '.narumir.io' : undefined,
+      sameSite: 'lax',
+    },
+  });
+  const redisIOAdapter = new ChatRedisAdapter(app, sessionMiddleware);
+  await redisIOAdapter.connectToRedis(redisService.getClient());
+
   app
     .set('query parser', 'extended')
     .set('trust proxy', true);
+
   app
     .enableShutdownHooks()
     .use(cookieParser())
     .use(helmet())
     .use(bodyParser.text({ type: 'text/plain' }))
-    .use(session({
-      name: 'session-id',
-      store: redisStore,
-      resave: false,
-      saveUninitialized: false,
-      secret: configService.getOrThrow('sessionSecret'),
-      rolling: true,
-      cookie: {
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        httpOnly: true,
-        secure: isProduction,
-        domain: isProduction ? '.narumir.io' : undefined,
-        sameSite: 'lax',
-      },
-    }))
+    .use(sessionMiddleware)
     .use(passport.initialize())
     .use(passport.session())
     .useGlobalPipes(new ValidationPipe(validationOptiions))
-    .useGlobalFilters(new GlobalExceptionFilter());
+    .useGlobalFilters(new GlobalExceptionFilter())
+    .useWebSocketAdapter(redisIOAdapter);
 
   app.enableCors({
     origin: (origin, callback) => {
