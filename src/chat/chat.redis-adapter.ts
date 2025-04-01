@@ -1,15 +1,30 @@
-import type Redis from 'ioredis';
+import * as passport from 'passport';
 import {
   IoAdapter,
 } from '@nestjs/platform-socket.io';
 import {
   createAdapter,
 } from '@socket.io/redis-adapter';
-import {
+import type Redis from 'ioredis';
+import type {
+  INestApplicationContext,
+} from '@nestjs/common';
+import type {
+  RequestHandler,
+} from 'express';
+import type {
+  Server,
   ServerOptions,
 } from 'socket.io';
 
 export class ChatRedisAdapter extends IoAdapter {
+
+  constructor(
+    private readonly app: INestApplicationContext,
+    private readonly session: RequestHandler,
+  ) {
+    super(app);
+  }
 
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
@@ -20,8 +35,11 @@ export class ChatRedisAdapter extends IoAdapter {
   }
 
   createIOServer(port: number, options?: ServerOptions) {
-    const io = super.createIOServer(port, options);
+    const io: Server = super.createIOServer(port, options);
     io.adapter(this.adapterConstructor);
+    io.engine.use(this.session);
+    io.engine.use(passport.initialize());
+    io.engine.use(passport.session());
     return io;
   }
 }
