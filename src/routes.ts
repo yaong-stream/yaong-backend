@@ -19,6 +19,9 @@ import {
 import {
   StreamModule,
 } from './stream/stream.module';
+import {
+  CategoryModule,
+} from './category/category.module';
 
 export const Routes = RouterModule.register([
   {
@@ -53,6 +56,10 @@ export const Routes = RouterModule.register([
             path: 'streams',
             module: StreamModule,
           },
+          {
+            path: 'categories',
+            module: CategoryModule,
+          },
         ],
       },
     ],
@@ -66,4 +73,5 @@ export const RegisteredModules = [
   PostModule,
   PostCommentModule,
   StreamModule,
+  CategoryModule,
 ];
