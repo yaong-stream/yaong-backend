@@ -26,7 +26,7 @@ const socket = io('/chat', {
 
 ```javascript
 socket.emit('chat-join', {
-  streamId: 12345  // 입장할 스트리밍 ID (숫자)
+  streamId: 12345   // 입장할 스트리밍 ID (숫자)
 });
 ```
 
@@ -38,7 +38,7 @@ socket.emit('chat-join', {
 
 ```javascript
 socket.emit('chat-message', {
-  message: '안녕하세요!' // 전송할 메시지 내용
+  message: '안녕하세요!'    // 전송할 메시지 내용
 });
 ```
 필수 파라미터:
@@ -57,21 +57,21 @@ socket.emit('chat-leave');
 
 ```javascript
 socket.on('chat-message', (data) => {
-  console.log(data.message);              // 메시지 내용
-  console.log(data.member.id);            // 사용자 ID
-  console.log(data.member.nickname);      // 사용자 닉네임
-  console.log(data.member.profileImage);  // 프로필 이미지 URL
+  console.log(data.message);                // 메시지 내용
+  console.log(data.member.id);              // 사용자 ID
+  console.log(data.member.nickname);        // 사용자 닉네임
+  console.log(data.member.profileImage);    // 프로필 이미지 URL
 });
 ```
 
 응답 데이터 구조:
 ```typescript
 {
-  message: string;       // 메시지 내용
+  message: string;          // 메시지 내용
   member: {
-    id: string;          // 사용자 ID
-    nickname: string;    // 사용자 닉네임
-    profileImage: string;// 프로필 이미지 URL (null 가능)
+    id: string;             // 사용자 ID
+    nickname: string;       // 사용자 닉네임
+    profileImage: string;   // 프로필 이미지 URL (null 가능)
   }
 }
 ```
@@ -81,19 +81,19 @@ socket.on('chat-message', (data) => {
 
 ```javascript
 socket.on('exception', (data)=> {
-  console.log(data.code);       // 오류 코드
-  console.log(data.detail);     // 상세 오류 내용
-  console.log(data.parameter)   // 오류 코드가 BadRequest일떄, 파라미터 값 
-  console.log(data.timestamp);  // 오류 발생 시간
+  console.log(data.code);         // 오류 코드
+  console.log(data.detail);       // 상세 오류 내용
+  console.log(data.parameter)     // 오류 코드가 BadRequest일떄, 파라미터 값 
+  console.log(data.timestamp);    // 오류 발생 시간
 });
 ```
 
 응답 데이터 구조:
 ```typescript
 {
-  code: string;       // 오류 코드
-  detail: string;     // 상세 오류 내용
-  parameter: string;  // 오류 코드가 BadRequest일떄, 파라미터 값 
-  timestamp: string;  // 오류 발생 시간
+  code: string;         // 오류 코드
+  detail: string;       // 상세 오류 내용
+  parameter: string;    // 오류 코드가 BadRequest일떄, 파라미터 값 
+  timestamp: string;    // 오류 발생 시간
 }
 ```
