@@ -243,11 +243,11 @@ export class AuthController {
     @Body() body: RefreshTokenDto,
   ) {
     const payload = this.authService.verifyRefreshToken(body.refreshToken);
-    if (payload.sub == null || payload["deviceId"] == null) {
+    if (payload.sub == null || payload['deviceId'] == null) {
       throw new UnauthorizedException('Invalid token payload.');
     }
     const memberId: number = Number(payload.sub);
-    const deviceId: string = payload["deviceId"];
+    const deviceId: string = payload['deviceId'];
     const loginHistory = await this.authService.validateRefreshTokenInHistory(memberId, deviceId, body.refreshToken);
     if (loginHistory == null) {
       throw new UnauthorizedException('Invalid refresh token.');
@@ -280,11 +280,11 @@ export class AuthController {
     @Body() body: RefreshTokenDto,
   ) {
     const payload = this.authService.verifyRefreshToken(body.refreshToken);
-    if (payload.sub == null || payload["deviceId"] == null) {
+    if (payload.sub == null || payload['deviceId'] == null) {
       throw new UnauthorizedException('Invalid token payload.');
     }
     const memberId: number = Number(payload.sub);
-    const deviceId: string = payload["deviceId"];
+    const deviceId: string = payload['deviceId'];
     const loginHistory = await this.authService.validateRefreshTokenInHistory(memberId, deviceId, body.refreshToken);
     if (loginHistory == null) {
       throw new UnauthorizedException('Invalid refresh token.');

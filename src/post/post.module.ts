@@ -1,19 +1,19 @@
 import {
   Module,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   TypeOrmModule,
-} from "@nestjs/typeorm";
+} from '@nestjs/typeorm';
 import {
   Post,
   PostLike,
-} from "src/entities";
+} from 'src/entities';
 import {
   PostController,
-} from "./post.controller";
+} from './post.controller';
 import {
   PostService,
-} from "./post.service";
+} from './post.service';
 
 @Module({
   imports: [

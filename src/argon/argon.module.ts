@@ -1,9 +1,9 @@
 import {
   Module,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   ArgonService,
-} from "./argon.service";
+} from './argon.service';
 
 @Module({
   providers: [

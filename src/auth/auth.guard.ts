@@ -35,8 +35,8 @@ export class MemberGuard implements CanActivate {
       if (!payload.sub || !payload.deviceId) {
         throw new UnauthorizedException('Invalid token payload.');
       }
-      req["sub"] = payload.sub;
-      req["deviceId"] = payload.deviceId;
+      req['sub'] = payload.sub;
+      req['deviceId'] = payload.deviceId;
       return true;
     } catch (e) {
       throw new UnauthorizedException('Invalid authorization token.');
@@ -50,11 +50,11 @@ export const MemberAuth = createParamDecorator((_: unknown, context: ExecutionCo
   if (req.user != null) {
     return req.user['id'];
   }
-  return req["sub"];
+  return req['sub'];
 });
 
 export const DeviceId = createParamDecorator((_: unknown, context: ExecutionContext) => {
   const ctx = context.switchToHttp();
   const req = ctx.getRequest<Request>();
-  return req["deviceId"];
+  return req['deviceId'];
 });

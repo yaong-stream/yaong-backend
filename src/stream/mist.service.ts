@@ -48,25 +48,25 @@ export class MistService {
 
   async createStream(key: string) {
     const body = {
-      "addstream": {
+      'addstream': {
         [key]: {
-          "name": key,
-          "source": "push://",
-          "tags": [],
-          "stop_sessions": false,
-          "DVR": null,
-          "cut": null,
-          "debug": null,
-          "fallback_stream": null,
-          "inputtimeout": null,
-          "maxkeepaway": null,
-          "pagetimeout": null,
-          "resume": null,
-          "segmentsize": null,
-          "processes": [],
+          'name': key,
+          'source': 'push://',
+          'tags': [],
+          'stop_sessions': false,
+          'DVR': null,
+          'cut': null,
+          'debug': null,
+          'fallback_stream': null,
+          'inputtimeout': null,
+          'maxkeepaway': null,
+          'pagetimeout': null,
+          'resume': null,
+          'segmentsize': null,
+          'processes': [],
         }
       },
-      "deletestream": [""],
+      'deletestream': [''],
     };
     const { data } = await firstValueFrom(this.httpService.post(`${this.mistServer}/api`, body, {
       headers: {

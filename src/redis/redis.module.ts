@@ -1,17 +1,17 @@
 import Redis, {
   RedisOptions,
-} from "ioredis";
+} from 'ioredis';
 import {
   DynamicModule,
   Module,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   RedisService,
-} from "./redis.service";
+} from './redis.service';
 import {
   REDIS_CLIENT,
   REDIS_MODULE,
-} from "./redis.constants";
+} from './redis.constants';
 
 export type RedisModuleAsyncOptions = {
   imports?: any[],
