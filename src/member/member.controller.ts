@@ -3,6 +3,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -36,6 +40,9 @@ import {
   SignupDto,
   WithdrawDto,
 } from './dto/request';
+import {
+  MemberDto,
+} from './dto/response';
 
 @Controller()
 export class MemberController {
@@ -72,6 +79,7 @@ export class MemberController {
       },
     },
   })
+  @HttpCode(HttpStatus.OK)
   @Post('signup')
   public async signup(
     @Body() body: SignupDto,
@@ -111,6 +119,7 @@ export class MemberController {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('withdraw')
   public async withdraw(
     @MemberAuth() memberId: number,
@@ -128,5 +137,28 @@ export class MemberController {
     return {
       success: (result.affected || 0) > 0,
     };
+  }
+
+  @ApiOperation({
+    summary: '회원 정보 조회',
+    description: '로그인한 회원 정보를 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '회원 정보',
+    type: MemberDto,
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  public async getMemberInfo(
+    @MemberAuth() memberId: number,
+  ) {
+    const member = await this.memberService.getMemberById(memberId);
+    if (member == null) {
+      throw new NotFoundException('Member not found.');
+    }
+    return MemberDto.from(member.id, member.nickname, member.profileImage);
   }
 }

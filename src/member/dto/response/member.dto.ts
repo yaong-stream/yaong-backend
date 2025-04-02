@@ -1,9 +1,6 @@
 import {
   ApiProperty,
 } from '@nestjs/swagger';
-import {
-  Member,
-} from 'src/entities';
 
 export class MemberDto {
 
@@ -13,7 +10,6 @@ export class MemberDto {
     required: true,
     type: Number,
     nullable: false,
-
   })
   id: number;
 
