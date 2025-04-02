@@ -1,10 +1,10 @@
 import {
   ConfigModule,
   ConfigService,
-} from "@nestjs/config";
+} from '@nestjs/config';
 import {
   RedisModule,
-} from "src/redis/redis.module";
+} from 'src/redis/redis.module';
 
 export const Redis = RedisModule.forRootAsync({
   imports: [

@@ -1,10 +1,10 @@
 import * as argon from 'argon2';
 import {
   Injectable,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   ConfigService,
-} from "@nestjs/config";
+} from '@nestjs/config';
 
 @Injectable()
 export class ArgonService {

@@ -1,11 +1,11 @@
 import {
   ApiProperty,
-} from "@nestjs/swagger";
+} from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreatePostDto {
 

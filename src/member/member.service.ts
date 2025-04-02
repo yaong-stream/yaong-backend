@@ -51,7 +51,7 @@ export class MemberService {
 
   public getMemberCredentialByEmail(email: string) {
     return this.memberRepository
-      .createQueryBuilder("member")
+      .createQueryBuilder('member')
       .where('member.email = :email', { email })
       .leftJoinAndMapOne('member.credential', MemberCredential, 'credential', 'credential.member_id = member.id')
       .addSelect('credential.password')
@@ -60,7 +60,7 @@ export class MemberService {
 
   public getMemberCredentialById(id: number) {
     return this.memberRepository
-      .createQueryBuilder("member")
+      .createQueryBuilder('member')
       .where('member.id = :id', { id })
       .leftJoinAndMapOne('member.credential', MemberCredential, 'credential', 'credential.member_id = member.id')
       .addSelect('credential.password')

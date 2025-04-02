@@ -1,15 +1,15 @@
 import {
   Module,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   TerminusModule,
-} from "@nestjs/terminus";
+} from '@nestjs/terminus';
 import {
   HealthController,
-} from "./health.controller";
+} from './health.controller';
 import {
   HealthRedisIndicator,
-} from "./health.redis-indicator";
+} from './health.redis-indicator';
 
 @Module({
   imports: [

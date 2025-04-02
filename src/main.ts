@@ -60,7 +60,9 @@ async function bootstrap() {
   };
 
   const redisService = app.get(RedisService);
-  const redisStore = new RedisStore({ client: redisService.getClient() });
+  const redisStore = new RedisStore({
+    client: redisService.getClient(),
+  });
   const sessionMiddleware = session({
     name: 'session-id',
     store: redisStore,

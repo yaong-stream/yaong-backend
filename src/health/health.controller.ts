@@ -1,26 +1,26 @@
 import {
   Controller,
   Get,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   ApiTags,
-} from "@nestjs/swagger";
+} from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckService,
   TypeOrmHealthIndicator,
-} from "@nestjs/terminus";
+} from '@nestjs/terminus';
 import {
   InjectDataSource,
-} from "@nestjs/typeorm";
+} from '@nestjs/typeorm';
 import {
   DataSource,
-} from "typeorm";
+} from 'typeorm';
 import {
   HealthRedisIndicator,
-} from "./health.redis-indicator";
+} from './health.redis-indicator';
 
-@ApiTags("Health check")
+@ApiTags('Health check')
 @Controller()
 export class HealthController {
   constructor(
@@ -32,11 +32,11 @@ export class HealthController {
   ) { }
 
   @HealthCheck()
-  @Get("/check")
+  @Get('/check')
   public async check() {
     return this.healthService.check([
-      () => this.healthIndicator.pingCheck("database", { connection: this.dataSource }),
-      () => this.redisHealthIndicator.pingCheck("redis"),
+      () => this.healthIndicator.pingCheck('database', { connection: this.dataSource }),
+      () => this.redisHealthIndicator.pingCheck('redis'),
     ]);
   }
 }
