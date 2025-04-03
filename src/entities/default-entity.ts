@@ -24,3 +24,24 @@ export abstract class DefaultEntity {
   })
   updatedAt: Date;
 }
+
+export abstract class DefaultUuidEntity {
+
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  id: string;
+
+  @CreateDateColumn({
+    type: 'timestamptz',
+    name: 'created_at',
+    nullable: false,
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamptz',
+    name: 'updated_at',
+    nullable: true,
+    onUpdate: 'now()',
+  })
+  updatedAt: Date;
+}

@@ -5,7 +5,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import {
-  DefaultEntity,
+  DefaultUuidEntity,
 } from './default-entity';
 import {
   Member,
@@ -17,7 +17,7 @@ import {
 @Entity({
   name: 'stream_chats',
 })
-export class StreamChat extends DefaultEntity {
+export class StreamChat extends DefaultUuidEntity {
 
   @Column({
     type: 'text',
