@@ -11,6 +11,8 @@ import {
   UseGuards,
   UnauthorizedException,
   ParseArrayPipe,
+  Res,
+  Next,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +24,9 @@ import {
   ApiCookieAuth,
 } from '@nestjs/swagger';
 import type {
+  NextFunction,
   Request,
+  Response,
 } from 'express';
 import {
   RedisService,
@@ -52,6 +56,9 @@ import {
 import {
   AuthLocalSignupGuard,
 } from './auth.local-signin-guard';
+import { resolve } from 'node:path';
+import { rejects } from 'node:assert';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller()
@@ -214,14 +221,22 @@ export class AuthController {
   @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @Post('signout')
-  public signout(
+  public async signout(
     @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
   ) {
-    return new Promise((resolve, reject) => {
-      req.logOut({ keepSessionInfo: false }, (err) => {
-        return err ? reject(err) : resolve({ success: true });
+    req.logout({ keepSessionInfo: false }, (err) => {
+      if (err) {
+        return next(err);
+      }
+      req.session.destroy((err) => {
+        if (err) {
+          return next(err);
+        }
+        res.clearCookie('session-id').json({ success: true });
       });
-    });
+    })
   }
 
   @ApiOperation({
