@@ -57,6 +57,7 @@ socket.emit('chat-leave');
 
 ```javascript
 socket.on('chat-message', (data) => {
+  console.log(data.id)                      // 메시지 ID
   console.log(data.message);                // 메시지 내용
   console.log(data.member.id);              // 사용자 ID
   console.log(data.member.nickname);        // 사용자 닉네임
@@ -67,6 +68,7 @@ socket.on('chat-message', (data) => {
 응답 데이터 구조:
 ```typescript
 {
+  id: string                // 메시지 ID
   message: string;          // 메시지 내용
   member: {
     id: string;             // 사용자 ID

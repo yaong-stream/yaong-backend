@@ -18,8 +18,9 @@ export class ChatService {
     private readonly chatRepository: Repository<StreamChat>,
   ) { }
 
-  public createChatHistory(streamId: number, memberId: number, message: string) {
+  public createChatHistory(streamId: number, memberId: number, chatId: string, message: string) {
     const chat = this.chatRepository.create({
+      id: chatId,
       message,
       stream: {
         id: streamId,

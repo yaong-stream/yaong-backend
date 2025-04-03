@@ -18,6 +18,9 @@ import {
   Socket,
 } from 'socket.io';
 import {
+  v4 as uuidV4,
+} from 'uuid';
+import {
   SocketExceptionFilter,
 } from 'src/exception/socket-exception-filter';
 import {
@@ -106,11 +109,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       member['nickname'] = mem.nickname;
       member['profileImage'] = mem.profileImage;
     }
-
     await this.redisService.expire(`${MEMBER_PREFIX}${memberId}`, CACHE_TTL);
+    const chatId = uuidV4();
     client.rooms.forEach((room) => {
       if (room.startsWith(ROOM_PREFIX)) {
         this.io.to(room).emit('chat-message', {
+          id: chatId,
           message: payload.message,
           member: {
             id: member['id'],
@@ -131,7 +135,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       }
     });
     await Promise.all(roomKeys.map(async (key) => {
-      await this.chatService.createChatHistory(key, memberId, payload.message);
+      await this.chatService.createChatHistory(key, memberId, chatId, payload.message);
     }));
   }
 
