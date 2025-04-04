@@ -271,7 +271,7 @@ export class StreamController {
     description: '방송 정보',
   })
   @HttpCode(HttpStatus.OK)
-  @Get()
+  @Get('info')
   public async getStreamByStreamerName(
     @Query('streamer_name') streamerName: string,
   ) {
@@ -356,7 +356,7 @@ export class StreamController {
   })
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
-  @Get(':stream_id/following')
+  @Get(':stream_id/followings')
   public async getStreamFollowing(
     @Param('stream_id', new ParseIntPipe()) streamId: number,
     @MemberAuth() memberId: number,
@@ -376,7 +376,7 @@ export class StreamController {
   })
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('following')
+  @Get('followings')
   public async getFollowingStreams(
     @MemberAuth() memberId: number,
   ) {
