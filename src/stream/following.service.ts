@@ -66,7 +66,7 @@ export class FollowerService {
       .addSelect((qb) => qb
         .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
         .from(StreamHistory, 'history')
-        .where('history.stream_id = following.stream_id'), 'is_live')
+        .where('history.stream_id = following.stream_id AND history.ended_at IS NULL'), 'is_live')
       .addSelect((qb) => qb
         .select('COUNT(*)')
         .from(Follower, 'follower')
