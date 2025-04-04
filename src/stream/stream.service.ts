@@ -10,6 +10,8 @@ import {
   Repository,
 } from 'typeorm';
 import {
+  Category,
+  Follower,
   Member,
   Stream,
   StreamHistory,
@@ -55,7 +57,12 @@ export class StreamService {
         .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
         .from(StreamHistory, 'history')
         .where('history.stream_id = stream.id'), 'is_live')
+      .addSelect((qb) => qb
+        .select('COUNT(*)')
+        .from(Follower, 'follower')
+        .where('follower.stream_id = stream.id'), 'followers')
       .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
+      .leftJoinAndMapOne('stream.category', Category, 'category', 'stream.category_id = category.id')
       .where('member.id = :memberId', { memberId })
       .getRawOne();
     return {
@@ -65,6 +72,12 @@ export class StreamService {
       thumbnailImage: stream.stream_thumbnail_image,
       streamKey: stream.stream_stream_key,
       isLive: stream.is_live,
+      followers: parseInt(stream.followers || '0', 10),
+      category: stream.category_id != null ? {
+        id: stream.category_id,
+        name: stream.category_name,
+        thumbnailImage: stream.category_thumbnail_image,
+      } : null,
       streamer: {
         id: stream.member_id,
         nickname: stream.member_nickname,
@@ -98,7 +111,12 @@ export class StreamService {
         .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
         .from(StreamHistory, 'history')
         .where('history.stream_id = stream.id AND history.ended_at IS NULL'), 'is_live')
+      .addSelect((qb) => qb
+        .select('COUNT(*)')
+        .from(Follower, 'follower')
+        .where('follower.stream_id = stream.id'), 'followers')
       .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
+      .leftJoinAndMapOne('stream.category', Category, 'category', 'stream.category_id = category.id')
       .where('member.nickname = :streamerName', { streamerName })
       .getRawOne();
     if (stream == null) {
@@ -111,6 +129,12 @@ export class StreamService {
       thumbnailImage: stream.stream_thumbnail_image,
       streamKey: stream.stream_stream_key,
       isLive: stream.is_live,
+      followers: parseInt(stream.followers || '0', 10),
+      category: stream.category_id != null ? {
+        id: stream.category_id,
+        name: stream.category_name,
+        thumbnailImage: stream.category_thumbnail_image,
+      } : null,
       streamer: {
         id: stream.member_id,
         nickname: stream.member_nickname,
@@ -132,6 +156,10 @@ export class StreamService {
         .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
         .from(StreamHistory, 'history')
         .where('history.stream_id = stream.id AND history.ended_at IS NULL'), 'is_live')
+      .addSelect((qb) => qb
+        .select('COUNT(*)')
+        .from(Follower, 'follower')
+        .where('follower.stream_id = stream.id'), 'followers')
       .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
       .where('stream.id IN(:...liveIds)', { liveIds })
       .getRawMany();
@@ -142,6 +170,12 @@ export class StreamService {
       thumbnailImage: stream.stream_thumbnail_image,
       streamKey: stream.stream_stream_key,
       isLive: stream.is_live,
+      followers: parseInt(stream.followers || '0', 10),
+      category: stream.category_id != null ? {
+        id: stream.category_id,
+        name: stream.category_name,
+        thumbnailImage: stream.category_thumbnail_image,
+      } : null,
       streamer: {
         id: stream.member_id,
         nickname: stream.member_nickname,

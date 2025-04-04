@@ -16,7 +16,7 @@ export class CreatePostDto {
     required: true,
     minLength: 1,
   })
-  @IsString({ message: 'Contentmust be a string.' })
+  @IsString({ message: 'Content must be a string.' })
   @MinLength(1, { message: 'Content must be at least 1 character long.' })
   @IsNotEmpty({ message: 'Content is required.' })
   content: string;
