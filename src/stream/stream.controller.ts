@@ -314,7 +314,7 @@ export class StreamController {
   @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
-  @Post(':stream_id')
+  @Post(':stream_id/followings')
   public async followingStream(
     @Param('stream_id', new ParseIntPipe()) streamId: number,
     @MemberAuth() memberId: number,
@@ -412,7 +412,7 @@ export class StreamController {
   @ApiCookieAuth()
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
-  @Delete(':stream_id')
+  @Delete(':stream_id/followings')
   public async unfollow(
     @MemberAuth() memberId: number,
     @Param('stream_id', new ParseIntPipe()) streamId: number,
