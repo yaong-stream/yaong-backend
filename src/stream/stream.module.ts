@@ -8,6 +8,7 @@ import {
   HttpModule,
 } from '@nestjs/axios';
 import {
+  Follower,
   Stream,
   StreamHistory,
 } from 'src/entities';
@@ -23,10 +24,13 @@ import {
 import {
   MistService,
 } from './mist.service';
+import {
+  FollowerService,
+} from './following.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Stream, StreamHistory]),
+    TypeOrmModule.forFeature([Stream, StreamHistory, Follower]),
     HttpModule.register({ timeout: 5000 }),
     MemberModule,
   ],
@@ -36,6 +40,7 @@ import {
   providers: [
     StreamService,
     MistService,
+    FollowerService
   ],
 })
 export class StreamModule { }

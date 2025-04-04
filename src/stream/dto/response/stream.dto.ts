@@ -7,6 +7,9 @@ import {
 import {
   Streaming,
 } from 'src/stream/stream.interface';
+import {
+  CategoryDto,
+} from './categoty.dto';
 
 export class StreamDto {
 
@@ -56,6 +59,15 @@ export class StreamDto {
   isLive: boolean;
 
   @ApiProperty({
+    description: '팔로워 수',
+    example: 10,
+    required: true,
+    type: Number,
+    nullable: false,
+  })
+  followers: number;
+
+  @ApiProperty({
     description: '방송 스트림키',
     example: '39ec2d91fd1d4b51b81438a2147156e4',
     required: true,
@@ -65,10 +77,18 @@ export class StreamDto {
   streamKey: string;
 
   @ApiProperty({
-    description: '게시글 작성자',
+    description: '방송 카테고리',
     required: true,
-    type: MemberDto,
+    type: CategoryDto,
     nullable: false,
+  })
+  category: CategoryDto;
+
+  @ApiProperty({
+    description: '게시글 작성자',
+    required: false,
+    type: MemberDto,
+    nullable: true,
   })
   streamer: MemberDto;
 
@@ -79,7 +99,9 @@ export class StreamDto {
     dto.description = stream.description;
     dto.thumbnailImage = stream.thumbnailImage;
     dto.isLive = stream.isLive;
+    dto.followers = stream.followers;
     dto.streamKey = stream.streamKey;
+    dto.category = CategoryDto.from(stream.category);
     dto.streamer = MemberDto.from(stream.streamer.id, stream.streamer.nickname, stream.streamer.profileImage);
     return dto;
   }

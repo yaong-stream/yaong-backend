@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -11,8 +12,10 @@ import {
   Logger,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +25,8 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import {
@@ -41,11 +46,16 @@ import {
   UpdateStreamInfo,
 } from './dto/request';
 import {
+  FollowingDto,
+  FollowerDto,
   StreamDto,
 } from './dto/response';
 import {
   MistService,
 } from './mist.service';
+import {
+  FollowerService,
+} from './following.service';
 
 @ApiTags('Stream')
 @Controller()
@@ -57,6 +67,7 @@ export class StreamController {
     private readonly streamService: StreamService,
     private readonly memberService: MemberService,
     private readonly mistService: MistService,
+    private readonly followerService: FollowerService,
   ) { }
 
   @ApiOperation({
@@ -248,19 +259,159 @@ export class StreamController {
     summary: '방송 정보',
     description: '스트리머의 방송 정보를 가져옵니다.',
   })
+  @ApiQuery({
+    name: 'streamer_name',
+    example: 'user',
+    required: true,
+    type: String,
+    nullable: false,
+  })
   @ApiOkResponse({
     type: StreamDto,
     description: '방송 정보',
   })
   @HttpCode(HttpStatus.OK)
-  @Get(':streamer_name')
-  public async getStream(
-    @Param('streamer_name') streamerName: string,
+  @Get()
+  public async getStreamByStreamerName(
+    @Query('streamer_name') streamerName: string,
   ) {
+    if (streamerName == null) {
+      throw new BadRequestException('StreamerName is required.');
+    }
     const stream = await this.streamService.getStreamByStreamerName(streamerName);
     if (stream == null) {
       throw new NotFoundException('Streamer not found.');
     }
     return StreamDto.from(stream);
+  }
+
+  @ApiOperation({
+    summary: '스트리머 팔로우',
+    description: '스트리머를 팔로우 합니다.',
+  })
+  @ApiParam({
+    name: 'stream_id',
+    description: '스트림 ID',
+    type: Number,
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '스트리머 팔로우 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post(':stream_id')
+  public async followingStream(
+    @Param('stream_id', new ParseIntPipe()) streamId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    try {
+      const following = await this.followerService.followStream(streamId, memberId);
+      return {
+        success: following != null,
+      };
+    } catch (e) {
+      this.logger.error(e);
+      throw new ConflictException('DUPLICATE_FOLLOWING');
+    }
+  }
+
+  @ApiOperation({
+    summary: '스트림 팔로우 여부',
+    description: '스트림 팔로우 여부를 확인합니다.',
+  })
+  @ApiParam({
+    name: 'stream_id',
+    description: '스트림(방송) ID',
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '스트림 팔로우 확인',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get(':stream_id/following')
+  public async getStreamFollowing(
+    @Param('stream_id', new ParseIntPipe()) streamId: number,
+    @MemberAuth() memberId: number,
+  ) {
+    const following = await this.followerService.checkFollowing(streamId, memberId);
+    const isFollowing = following != null;
+    return FollowingDto.from(isFollowing);
+  }
+
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('following')
+  public async getFollowingStreams(
+    @MemberAuth() memberId: number,
+  ) {
+    const followings = await this.followerService.getFollowingStreams(memberId);
+    return followings.map((following) => FollowerDto.from(following));
+  }
+
+  @ApiOperation({
+    summary: '스트리머 언팔로우',
+    description: '스트리머를 언팔로우 합니다.',
+  })
+  @ApiParam({
+    name: 'stream_id',
+    description: '스트림(방송) ID',
+    required: true,
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: '스트리머 언팔로우 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+        },
+      },
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete(':stream_id')
+  public async unfollow(
+    @MemberAuth() memberId: number,
+    @Param('stream_id', new ParseIntPipe()) streamId: number,
+  ) {
+    const result = await this.followerService.unfollowStream(streamId, memberId);
+    return {
+      success: (result.affected || 0) > 0,
+    };
   }
 }
