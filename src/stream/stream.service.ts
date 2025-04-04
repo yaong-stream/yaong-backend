@@ -120,7 +120,7 @@ export class StreamService {
       .where('member.nickname = :streamerName', { streamerName })
       .getRawOne();
     if (stream == null) {
-      return;
+      return null;
     }
     return {
       id: stream.stream_id,
