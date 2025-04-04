@@ -78,11 +78,11 @@ export class StreamDto {
 
   @ApiProperty({
     description: '방송 카테고리',
-    required: true,
+    required: false,
     type: CategoryDto,
-    nullable: false,
+    nullable: true,
   })
-  category: CategoryDto;
+  category?: CategoryDto | null;
 
   @ApiProperty({
     description: '게시글 작성자',
@@ -101,7 +101,7 @@ export class StreamDto {
     dto.isLive = stream.isLive;
     dto.followers = stream.followers;
     dto.streamKey = stream.streamKey;
-    dto.category = CategoryDto.from(stream.category);
+    dto.category = stream.category != null ? CategoryDto.from(stream.category) : null;
     dto.streamer = MemberDto.from(stream.streamer.id, stream.streamer.nickname, stream.streamer.profileImage);
     return dto;
   }

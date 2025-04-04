@@ -260,7 +260,7 @@ export class StreamController {
     description: '스트리머의 방송 정보를 가져옵니다.',
   })
   @ApiQuery({
-    name: 'streamer_name',
+    name: 'streamerName',
     example: 'user',
     required: true,
     type: String,
@@ -273,7 +273,7 @@ export class StreamController {
   @HttpCode(HttpStatus.OK)
   @Get('info')
   public async getStreamByStreamerName(
-    @Query('streamer_name') streamerName: string,
+    @Query('streamerName') streamerName: string,
   ) {
     if (streamerName == null) {
       throw new BadRequestException('StreamerName is required.');
