@@ -366,6 +366,14 @@ export class StreamController {
     return FollowingDto.from(isFollowing);
   }
 
+  @ApiOperation({
+    summary: '팔로우 중인 스트림(방송) 목록',
+    description: '팔로우 중인 스트림(방송) 목록을 가져옵니다.',
+  })
+  @ApiOkResponse({
+    description: '팔로우 중인 스트림(방송) 목록',
+    type: [FollowerDto],
+  })
   @UseGuards(MemberGuard)
   @HttpCode(HttpStatus.OK)
   @Get('following')

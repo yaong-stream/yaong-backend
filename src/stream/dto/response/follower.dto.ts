@@ -21,7 +21,7 @@ export class FollowerDto {
 
   @ApiProperty({
     description: '팔로우 중인 스트림(방송)',
-    example: [StreamDto],
+    example: StreamDto,
     required: true,
     type: StreamDto,
     nullable: false,
