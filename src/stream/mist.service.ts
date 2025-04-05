@@ -76,6 +76,48 @@ export class MistService {
     return data?.streams[key]?.name === key;
   }
 
+  async changeStreamKey(key: string, newKey: string) {
+    const body = {
+      'addstream': {
+        [newKey]: {
+          'name': newKey,
+          'source': 'push://',
+          'tags': [],
+          'stop_sessions': false,
+          'DVR': null,
+          'cut': null,
+          'debug': null,
+          'fallback_stream': null,
+          'inputtimeout': null,
+          'maxkeepaway': null,
+          'pagetimeout': null,
+          'resume': null,
+          'segmentsize': null,
+          'processes': [],
+        }
+      },
+      'deletestream': [key],
+    };
+    const { data } = await firstValueFrom(this.httpService.post(`${this.mistServer}/api`, body, {
+      headers: {
+        Authorization: this.mistAuthorization,
+      },
+    }));
+    return data?.streams[key]?.name === key;
+  }
+
+  async deleteStream(key: string) {
+    const body = {
+      'deletestream': [key],
+    };
+    await firstValueFrom(this.httpService.post(`${this.mistServer}/api`, body, {
+      headers: {
+        Authorization: this.mistAuthorization,
+      },
+    }));
+    return true;
+  }
+
   private createMD5Hash(key: string) {
     return crypto
       .createHash('md5')

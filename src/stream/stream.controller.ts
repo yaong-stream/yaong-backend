@@ -49,6 +49,7 @@ import {
   FollowingDto,
   FollowerDto,
   StreamDto,
+  StreamKeyDto,
 } from './dto/response';
 import {
   MistService,
@@ -190,6 +191,38 @@ export class StreamController {
     return {
       success: (deactivate.affected || 0) > 0,
     };
+  }
+
+  @ApiOperation({
+    summary: '새로운 스트림 키 생성',
+    description: '새로운 스트림 키를 생성합니다.',
+  })
+  @ApiOkResponse({
+    description: '새로운 스트림 키 생성 성공',
+    type: StreamKeyDto,
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('generateStreamKey')
+  public async generateNewStreamKey(
+    @MemberAuth() memberId: number,
+  ) {
+    const streamKey = await this.streamService.getStreamKeyByMemberId(memberId);
+    if (streamKey == null) {
+      throw new BadRequestException('Streamer mode not activated.');
+    }
+    const newStreamKey = uuidv4().replace(/-/g, '');
+    const change = await this.mistService.changeStreamKey(streamKey, newStreamKey);
+    if (!change) {
+      throw new InternalServerErrorException('Fail to change stream key.');
+    }
+    const result = await this.streamService.updateStreamKey(memberId, newStreamKey);
+    if (!result.affected) {
+      throw new InternalServerErrorException('Fail to update stream key.');
+    }
+    return StreamKeyDto.from(newStreamKey);
   }
 
   /**
