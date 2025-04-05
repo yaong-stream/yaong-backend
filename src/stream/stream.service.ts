@@ -205,4 +205,26 @@ export class StreamService {
       return stream;
     }))
   }
+
+  async getStreamKeyByMemberId(memberId: number) {
+    const stream = await this.streamRepository.findOneBy({
+      streamer: {
+        id: memberId,
+      },
+    });
+    return stream?.streamKey;
+  }
+
+  updateStreamKey(memberId: number, streamKey: string) {
+    return this.streamRepository.update(
+      {
+        streamer: {
+          id: memberId,
+        },
+      },
+      {
+        streamKey,
+      },
+    );
+  }
 }
