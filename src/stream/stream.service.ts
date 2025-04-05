@@ -143,14 +143,8 @@ export class StreamService {
     } as Streaming;
   }
 
-  public async getLiveStreams() {
-    const histories = await this.streamHistoryRepoditory
-      .createQueryBuilder('history')
-      .select('DISTINCT history.stream_id', 'stream_id')
-      .where('history.ended_at IS NULL')
-      .getRawMany();
-    const liveIds = histories.map((history) => history.stream_id) as number[];
-    const liveStreams = await this.streamRepository
+  public async getPopularLiveStreams() {
+    const streams = await this.streamRepository
       .createQueryBuilder('stream')
       .addSelect((qb) => qb
         .select('CASE WHEN COUNT(history.id) > 0 THEN true ELSE false END')
@@ -161,9 +155,13 @@ export class StreamService {
         .from(Follower, 'follower')
         .where('follower.stream_id = stream.id'), 'followers')
       .leftJoinAndMapOne('stream.streamer', Member, 'member', 'stream.member_id = member.id')
-      .where('stream.id IN(:...liveIds)', { liveIds })
+      .leftJoinAndMapOne('stream.category', Category, 'category', 'stream.category_id = category.id')
+      .where('EXISTS (SELECT 1 FROM stream_histories history WHERE history.stream_id = stream.id AND history.ended_at IS NULL)')
+      .orderBy('followers', 'DESC')
+      .limit(8)
       .getRawMany();
-    return liveStreams.map((stream) => ({
+
+    return streams.map((stream) => ({
       id: stream.stream_id,
       name: stream.stream_name,
       description: stream.stream_description,

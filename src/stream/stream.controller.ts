@@ -283,8 +283,8 @@ export class StreamController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  public async getLiveStreams() {
-    const streams = await this.streamService.getLiveStreams();
+  public async getLiveStreams () {
+    const streams = await this.streamService.getPopularLiveStreams();
     return streams.map((stream) => StreamDto.from(stream));
   }
 
