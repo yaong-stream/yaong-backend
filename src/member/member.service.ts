@@ -22,6 +22,8 @@ export class MemberService {
     private readonly datasource: DataSource,
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
+    @InjectRepository(MemberCredential)
+    private readonly memberCredentialRepository: Repository<MemberCredential>,
   ) { }
 
   public createMember(email: string, hash: string, nickname: string) {
@@ -73,5 +75,30 @@ export class MemberService {
 
   public withdraw(memberId: number) {
     return this.memberRepository.delete({ id: memberId });
+  }
+
+  public updateMember(memberId: number, nickname: string, profileImage: string) {
+    return this.memberRepository.update(
+      {
+        id: memberId,
+      },
+      {
+        nickname,
+        profileImage,
+      },
+    );
+  }
+
+  public updateMemberPassword(memberId: number, hash: string) {
+    return this.memberCredentialRepository.update(
+      {
+        member: {
+          id: memberId,
+        },
+      },
+      {
+        password: hash,
+      },
+    );
   }
 }

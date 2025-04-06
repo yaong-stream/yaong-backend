@@ -12,6 +12,7 @@ import {
 } from '@nestjs/typeorm';
 import {
   Member,
+  MemberCredential,
 } from 'src/entities';
 import {
   MailerModule,
@@ -22,7 +23,7 @@ import {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Member]),
+    TypeOrmModule.forFeature([Member, MemberCredential]),
     ArgonModule,
     MailerModule,
   ],
