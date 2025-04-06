@@ -22,6 +22,9 @@ import {
 import {
   CategoryModule,
 } from './category/category.module';
+import {
+  S3Module,
+} from './s3/s3.module';
 
 export const Routes = RouterModule.register([
   {
@@ -60,6 +63,10 @@ export const Routes = RouterModule.register([
             path: 'categories',
             module: CategoryModule,
           },
+          {
+            path: 's3',
+            module: S3Module,
+          },
         ],
       },
     ],
@@ -74,4 +81,5 @@ export const RegisteredModules = [
   PostCommentModule,
   StreamModule,
   CategoryModule,
+  S3Module,
 ];
