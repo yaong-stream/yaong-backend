@@ -7,7 +7,9 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Patch,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -38,11 +40,17 @@ import {
 } from './member.service';
 import {
   SignupDto,
+  UpdateMemberDto,
+  UpdatePasswordDto,
   WithdrawDto,
 } from './dto/request';
 import {
   MemberDto,
+  MemberInfoDto,
 } from './dto/response';
+import {
+  type Response,
+} from 'express';
 
 @Controller()
 export class MemberController {
@@ -124,6 +132,7 @@ export class MemberController {
   public async withdraw(
     @MemberAuth() memberId: number,
     @Body() body: WithdrawDto,
+    @Res() res: Response,
   ) {
     const member = await this.memberService.getMemberCredentialById(memberId);
     if (!member) {
@@ -134,9 +143,11 @@ export class MemberController {
       throw new BadRequestException('Password is incorrect.');
     }
     const result = await this.memberService.withdraw(memberId);
-    return {
-      success: (result.affected || 0) > 0,
-    };
+    return res
+      .clearCookie('session-id')
+      .json({
+        success: (result.affected || 0) > 0,
+      });
   }
 
   @ApiOperation({
@@ -159,6 +170,87 @@ export class MemberController {
     if (member == null) {
       throw new NotFoundException('Member not found.');
     }
-    return MemberDto.from(member.id, member.nickname, member.profileImage);
+    return MemberInfoDto.from(member);
+  }
+
+  @ApiOperation({
+    summary: '회원 정보 수정',
+    description: '회원 정보를 수정합니다.',
+  })
+  @ApiBody({
+    type: UpdateMemberDto,
+    description: '회원 정보 수정 정보',
+    required: true,
+  })
+  @ApiOkResponse({
+    description: '회원 정보 수정 성공 여부',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch()
+  public async updateMemberInfo(
+    @MemberAuth() memberId: number,
+    @Body() body: UpdateMemberDto,
+  ) {
+    const result = await this.memberService.updateMember(memberId, body.nickname, body.profileImage);
+    return {
+      success: (result.affected || 0) > 0,
+    };
+  }
+
+  @ApiOperation({
+    summary: '회원 비밀번호 수정',
+    description: '회원 비밀번호를 수정합니다.',
+  })
+  @ApiBody({
+    type: UpdatePasswordDto,
+    description: '회원 비밀번호 수정 정보',
+    required: true,
+  })
+  @ApiOkResponse({
+    description: '회원 비밀번호 수정 성공 여부',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @UseGuards(MemberGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('password')
+  public async updateMemberPassword(
+    @MemberAuth() memberId: number,
+    @Body() body: UpdatePasswordDto,
+  ) {
+    const member = await this.memberService.getMemberCredentialById(memberId);
+    if (member == null) {
+      throw new NotFoundException('Member not found.');
+    }
+    const isPasswordValid = await this.argonService.verifyPassword(member.credential.password, body.previousPassword);
+    if (!isPasswordValid) {
+      throw new BadRequestException('PreviousPassword is incorrect.');
+    }
+    const hash = await this.argonService.hashPassword(body.password);
+    const result = await this.memberService.updateMemberPassword(memberId, hash);
+    return {
+      success: (result.affected || 0) > 0,
+    };
   }
 }
