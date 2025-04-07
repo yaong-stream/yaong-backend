@@ -11,7 +11,7 @@ import {
   Member,
   PostComment,
   PostCommentLike,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   Comment,
   CommentReply,

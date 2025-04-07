@@ -11,7 +11,7 @@ import {
   Member,
   Post,
   PostLike,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   PostWithLikeCount,
 } from './post.interface';

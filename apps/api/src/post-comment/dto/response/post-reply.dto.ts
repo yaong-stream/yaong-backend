@@ -3,7 +3,7 @@ import {
 } from '@nestjs/swagger';
 import {
   PostComment,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   MemberDto,
 } from '@api/member/dto/response';

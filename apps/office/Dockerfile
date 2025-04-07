@@ -6,6 +6,7 @@ FROM base AS builder
 
 COPY package*.json tsconfig*.json nest-cli.json . 
 COPY apps/office ./apps/office
+COPY libs/entity ./libs/entity
 
 RUN npm ci
 RUN npm run build:office

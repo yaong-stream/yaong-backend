@@ -3,7 +3,7 @@ import {
 } from '@nestjs/swagger';
 import {
   Category,
-} from '@api/entities';
+} from '@lib/entity';
 
 export class CategoryDto {
 

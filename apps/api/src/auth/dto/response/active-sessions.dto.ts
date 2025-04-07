@@ -3,7 +3,7 @@ import {
 } from '@nestjs/swagger';
 import {
   LoginHistory,
-} from '@api/entities';
+} from '@lib/entity';
 
 export class ActiveSessionsDto {
 

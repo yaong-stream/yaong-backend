@@ -15,7 +15,7 @@ import {
   Member,
   Stream,
   StreamHistory,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   Streaming,
 } from './stream.interface';

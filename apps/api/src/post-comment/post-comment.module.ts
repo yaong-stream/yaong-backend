@@ -7,7 +7,7 @@ import {
 import {
   PostComment,
   PostCommentLike,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   PostCommentController,
 } from './post-comment.controller';

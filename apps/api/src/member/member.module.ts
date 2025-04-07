@@ -13,7 +13,7 @@ import {
 import {
   Member,
   MemberCredential,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   MailerModule,
 } from '@api/mailer/mailer.module';

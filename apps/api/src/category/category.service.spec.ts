@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import {
   Category,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   CategoryService,
 } from './category.service';

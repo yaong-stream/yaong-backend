@@ -18,8 +18,18 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@api/*": ["apps/api/src/*"],
-      "@office/*": ["apps/office/src/*"]
+      "@api/*": [
+        "apps/api/src/*"
+      ],
+      "@lib/entity": [
+        "libs/entity/src"
+      ],
+      "@lib/entity/*": [
+        "libs/entity/src/*"
+      ],
+      "@office/*": [
+        "apps/office/src/*"
+      ]
     }
   }
 }

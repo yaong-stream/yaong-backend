@@ -13,7 +13,7 @@ import {
   Member,
   Stream,
   StreamHistory,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   StreamFollowing,
 } from './stream.interface';

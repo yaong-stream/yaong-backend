@@ -7,7 +7,7 @@ import {
 import {
   Stream,
   StreamChat,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   MemberModule,
 } from '@api/member/member.module';

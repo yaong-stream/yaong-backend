@@ -26,7 +26,7 @@ import {
 import {
   Member,
   LoginHistory,
-} from '@api/entities';
+} from '@lib/entity';
 
 @Injectable()
 export class AuthService {

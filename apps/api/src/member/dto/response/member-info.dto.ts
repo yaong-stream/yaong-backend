@@ -3,7 +3,7 @@ import {
 } from '@nestjs/swagger';
 import {
   Member,
-} from '@api/entities';
+} from '@lib/entity';
 
 export class MemberInfoDto {
 

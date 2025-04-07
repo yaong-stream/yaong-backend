@@ -4,7 +4,7 @@ import {
 } from '@nestjs/testing';
 import {
   Category,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   CategoryController,
 } from './category.controller';

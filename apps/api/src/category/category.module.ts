@@ -6,7 +6,7 @@ import {
 } from '@nestjs/typeorm';
 import {
   Category,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   CategoryController,
 } from './category.controller';

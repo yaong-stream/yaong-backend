@@ -13,7 +13,7 @@ import {
 } from '@api/argon/argon.module';
 import {
   LoginHistory,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   AuthController,
 } from './auth.controller';

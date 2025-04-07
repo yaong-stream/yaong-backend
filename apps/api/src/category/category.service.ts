@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import {
   Category,
-} from '@api/entities';
+} from '@lib/entity';
 
 @Injectable()
 export class CategoryService {

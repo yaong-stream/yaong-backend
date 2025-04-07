@@ -18,7 +18,7 @@ import {
   StreamHistory,
   Follower,
   StreamChat,
-} from '@api/entities';
+} from '@lib/entity';
 import {
   EntitySchema,
   MixedList,

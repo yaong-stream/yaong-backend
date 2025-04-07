@@ -8,6 +8,7 @@
   "scripts": {
     "build:office": "nest build office",
     "build:api": "nest build api",
+    "build:entity": "nest build entity",
     "dev:office": "nest start office --watch",
     "dev:api": "nest start api --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -105,10 +106,12 @@
     "testEnvironment": "node",
     "roots": [
       "<rootDir>/apps/api",
-      "<rootDir>/apps/office"
+      "<rootDir>/apps/office",
+      "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
       "^@api/(.*)$": "<rootDir>/apps/api/src/$1",
+      "^@lib/entity(|/.*)$": "<rootDir>/libs/entity/src/$1",
       "^@office/(.*)$": "<rootDir>/apps/office/src/$1"
     },
     "verbose": true
